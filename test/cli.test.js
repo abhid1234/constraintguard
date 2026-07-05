@@ -65,3 +65,58 @@ test('cg with an unknown command exits non-zero', () => {
   assert.equal(res.status, 1);
   assert.match(res.stderr, /unknown command/);
 });
+
+const SET_JSON = JSON.stringify([
+  { id: 'no-pii', text: 'Never leak PII.', severity: 'must' },
+  { id: 'short', text: 'Keep it short.', severity: 'should' },
+]);
+
+test('cg pin with a constraints file writes the pinned context to stdout, exits 0', () => {
+  const setPath = fixture('set.json', SET_JSON);
+  const ctxPath = fixture('session.md', 'Existing prose.\n');
+  const res = run(['pin', setPath, ctxPath]);
+  assert.equal(res.status, 0, res.stderr);
+  assert.ok(res.stdout.startsWith('```constraints\n'), res.stdout);
+  assert.match(res.stdout, /Existing prose\./);
+  // Round-trips through extract.
+  const back = run(['extract', fixture('pinned.md', res.stdout)]);
+  assert.deepEqual(JSON.parse(back.stdout), JSON.parse(SET_JSON));
+});
+
+test('cg pin reads the constraint set from stdin when only a context file is given', () => {
+  const ctxPath = fixture('session.md', 'body\n');
+  const res = run(['pin', ctxPath], { input: SET_JSON });
+  assert.equal(res.status, 0, res.stderr);
+  assert.match(res.stdout, /must \[no-pii\]: Never leak PII\./);
+});
+
+test('cg pin is idempotent when re-run over its own output', () => {
+  const setPath = fixture('set.json', SET_JSON);
+  const ctxPath = fixture('session.md', 'body text\n');
+  const first = run(['pin', setPath, ctxPath]);
+  assert.equal(first.status, 0, first.stderr);
+  const second = run(['pin', setPath, fixture('pinned.md', first.stdout)]);
+  assert.equal(second.status, 0, second.stderr);
+  assert.equal(second.stdout, first.stdout);
+});
+
+test('cg pin with no arguments exits non-zero with a clear message', () => {
+  const res = run(['pin'], { input: SET_JSON });
+  assert.equal(res.status, 1);
+  assert.match(res.stderr, /context file is required/);
+});
+
+test('cg pin with an invalid constraint set exits non-zero', () => {
+  const setPath = fixture('bad.json', '[{"id":"a","text":"x","severity":"maybe"}]');
+  const ctxPath = fixture('session.md', 'body\n');
+  const res = run(['pin', setPath, ctxPath]);
+  assert.equal(res.status, 1);
+  assert.match(res.stderr, /invalid constraint set/);
+});
+
+test('cg pin on an unreadable context file exits non-zero', () => {
+  const setPath = fixture('set.json', SET_JSON);
+  const res = run(['pin', setPath, '/no/such/context.md']);
+  assert.equal(res.status, 1);
+  assert.match(res.stderr, /cannot read/);
+});
