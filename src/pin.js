@@ -41,12 +41,29 @@ export function pinConstraints(constraintSet, context) {
     throw new Error(`pin expects a string context, got ${context === null ? 'null' : typeof context}`);
   }
 
+  for (const c of set) assertEncodable(c);
+
   const block = renderBlock(set);
   // Drop any existing constraints block(s), then trim the blank lines they
   // leave behind so the output is stable under repeated pinning.
   const body = stripConstraintBlocks(context).replace(/^\n+/, '');
 
   return body === '' ? block : `${block}\n\n${body}`;
+}
+
+// A constraint is schema-valid but not necessarily *encodable*: the emitted
+// format is one line per constraint (`severity [id]: text`), so a text with an
+// embedded newline would split into a non-constraint physical line, and an id
+// containing a newline or a `]` would break the `[id]:` delimiter. Either case
+// corrupts the round-trip silently — the exact failure `pin` exists to prevent.
+// Reject rather than emit a quietly-broken block, naming the offending id.
+function assertEncodable(c) {
+  if (/[\r\n]/.test(c.text)) {
+    throw new Error(`constraint "${c.id}" has non-encodable text: text must not contain a newline`);
+  }
+  if (/[\r\n\]]/.test(c.id)) {
+    throw new Error(`constraint "${c.id}" has non-encodable id: id must not contain a newline or "]"`);
+  }
 }
 
 // Render a constraint set as a `constraints` fenced block (no trailing newline).

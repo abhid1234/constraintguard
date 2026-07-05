@@ -82,6 +82,19 @@ test('non-string context throws', () => {
   assert.throws(() => pinConstraints(SET, 42), /expects a string/);
 });
 
+test('non-encodable constraint throws (schema-valid but breaks the round-trip)', () => {
+  // Embedded newline in text would split into a non-constraint physical line.
+  assert.throws(
+    () => pinConstraints([{ id: 'a', text: 'line one\nline two', severity: 'must' }], 'ctx'),
+    /"a".*non-encodable text/,
+  );
+  // A "]" in the id breaks the [id]: delimiter so extract cannot read it back.
+  assert.throws(
+    () => pinConstraints([{ id: 'a]b', text: 'x', severity: 'must' }], 'ctx'),
+    /"a\]b".*non-encodable id/,
+  );
+});
+
 test('an invalid constraint set throws (validated with #1)', () => {
   assert.throws(() => pinConstraints([{ id: 'a', text: 'x', severity: 'maybe' }], 'ctx'), /severity/);
   assert.throws(() => pinConstraints('not an array', 'ctx'), /must be an array/);
