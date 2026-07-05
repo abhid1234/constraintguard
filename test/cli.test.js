@@ -120,3 +120,14 @@ test('cg pin on an unreadable context file exits non-zero', () => {
   assert.equal(res.status, 1);
   assert.match(res.stderr, /cannot read/);
 });
+
+test('cg pin on a schema-valid but non-encodable set fails cleanly, no stack trace', () => {
+  // Empty text passes the schema but would silently vanish on round-trip; pin
+  // must reject it with a clean `pin: ...` message, not an unhandled throw.
+  const ctxPath = fixture('session.md', 'body\n');
+  const res = run(['pin', ctxPath], { input: '[{"id":"a","text":"","severity":"must"}]' });
+  assert.equal(res.status, 1);
+  assert.match(res.stderr, /^pin: /m);
+  assert.match(res.stderr, /non-encodable text/);
+  assert.doesNotMatch(res.stderr, /at .*\.js:\d+/); // no Node stack trace
+});

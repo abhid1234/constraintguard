@@ -93,6 +93,27 @@ test('non-encodable constraint throws (schema-valid but breaks the round-trip)',
     () => pinConstraints([{ id: 'a]b', text: 'x', severity: 'must' }], 'ctx'),
     /"a\]b".*non-encodable id/,
   );
+  // Empty text is schema-valid but extract drops the line entirely — a total
+  // constraint loss on round-trip, the worst silent corruption.
+  assert.throws(
+    () => pinConstraints([{ id: 'a', text: '', severity: 'must' }], 'ctx'),
+    /"a".*non-encodable text/,
+  );
+  // Whitespace-only text likewise vanishes on read-back.
+  assert.throws(
+    () => pinConstraints([{ id: 'a', text: '   ', severity: 'must' }], 'ctx'),
+    /"a".*non-encodable text/,
+  );
+  // Leading/trailing whitespace on text or id is stripped by extract, so it
+  // would not round-trip verbatim.
+  assert.throws(
+    () => pinConstraints([{ id: 'a', text: ' x ', severity: 'must' }], 'ctx'),
+    /"a".*non-encodable text/,
+  );
+  assert.throws(
+    () => pinConstraints([{ id: ' a ', text: 'x', severity: 'must' }], 'ctx'),
+    /non-encodable id/,
+  );
 });
 
 test('an invalid constraint set throws (validated with #1)', () => {

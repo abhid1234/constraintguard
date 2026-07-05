@@ -103,7 +103,13 @@ function cmdPin(args) {
     fail(`pin: cannot read ${contextFile}: ${err.message}`);
   }
 
-  process.stdout.write(pinConstraints(set, context));
+  let out;
+  try {
+    out = pinConstraints(set, context);
+  } catch (err) {
+    fail(`pin: ${err.message}`);
+  }
+  process.stdout.write(out);
 }
 
 function fail(msg) {

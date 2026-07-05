@@ -52,17 +52,30 @@ export function pinConstraints(constraintSet, context) {
 }
 
 // A constraint is schema-valid but not necessarily *encodable*: the emitted
-// format is one line per constraint (`severity [id]: text`), so a text with an
-// embedded newline would split into a non-constraint physical line, and an id
-// containing a newline or a `]` would break the `[id]:` delimiter. Either case
-// corrupts the round-trip silently — the exact failure `pin` exists to prevent.
-// Reject rather than emit a quietly-broken block, naming the offending id.
+// format is one line per constraint (`severity [id]: text`), and `extract` reads
+// it back by trimming each field and requiring non-empty text. So a text with an
+// embedded newline splits into a non-constraint physical line; an empty or
+// whitespace-only text is dropped entirely by extract's non-empty-text rule; and
+// leading/trailing whitespace on text or id is silently stripped on read-back.
+// An id containing a newline or a `]` breaks the `[id]:` delimiter. Every one of
+// these corrupts the round-trip silently — the exact failure `pin` exists to
+// prevent. Reject rather than emit a quietly-broken block, naming the offending
+// constraint.
 function assertEncodable(c) {
   if (/[\r\n]/.test(c.text)) {
     throw new Error(`constraint "${c.id}" has non-encodable text: text must not contain a newline`);
   }
+  if (c.text.trim() === '') {
+    throw new Error(`constraint "${c.id}" has non-encodable text: text must not be empty or whitespace-only`);
+  }
+  if (c.text.trim() !== c.text) {
+    throw new Error(`constraint "${c.id}" has non-encodable text: text must not have leading or trailing whitespace`);
+  }
   if (/[\r\n\]]/.test(c.id)) {
     throw new Error(`constraint "${c.id}" has non-encodable id: id must not contain a newline or "]"`);
+  }
+  if (c.id.trim() !== c.id) {
+    throw new Error(`constraint "${c.id}" has non-encodable id: id must not have leading or trailing whitespace`);
   }
 }
 
