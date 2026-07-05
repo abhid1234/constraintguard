@@ -8,7 +8,7 @@ When a long-running agent summarizes its history to fit the context window, its 
 cg validate constraints.json   # is this a well-formed constraint set?
 cg extract session.md          # pull declared constraints out of a context
 cg pin constraints.json ctx.md # re-inject constraints into a (compacted) context
-cg conformance                 # score how well constraints survive compaction
+cg conformance orig.md new.md  # score how well constraints survive compaction
 ```
 
 Open format, dependency-free, cross-harness. Run the tests: `npm test`.
