@@ -1,0 +1,9 @@
+{
+  "name": "constraintguard",
+  "version": "0.1.0",
+  "description": "Keep an AI agent's declared constraints alive across context compaction. Zero dependencies.",
+  "type": "module",
+  "bin": { "cg": "bin/cg.js" },
+  "scripts": { "test": "node --test" },
+  "license": "MIT"
+}
