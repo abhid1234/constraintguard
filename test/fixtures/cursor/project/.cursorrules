@@ -1,0 +1,9 @@
+# Cursor project rules (legacy plaintext format)
+
+Always prefer TypeScript. Never commit secrets to the repository. These are
+plain prose rules — Cursor shows them to the model, but ConstraintGuard only
+tracks what the operator marks with an explicit fence:
+
+```constraints
+must [no-secrets]: Never commit secrets or credentials to the repository.
+```

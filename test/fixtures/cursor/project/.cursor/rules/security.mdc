@@ -1,0 +1,12 @@
+---
+description: Security rules, always applied
+alwaysApply: true
+---
+
+# Security rules
+
+Handle privileged operations carefully.
+
+```constraints
+must [audit-log]: Always write an audit log entry for privileged actions.
+```

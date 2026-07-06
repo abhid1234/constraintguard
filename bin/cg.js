@@ -3,7 +3,7 @@
 // `conformance`, `pin`, `otel`. Future subcommands (`validate`) slot in as
 // sibling cases in main(). Zero dependencies: Node standard library only.
 
-import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
+import { readFileSync, readdirSync, statSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -18,7 +18,7 @@ import {
 import { runPreCompact, runSessionStart, safeSessionKey } from '../src/hook.js';
 
 const USAGE = [
-  'usage: cg extract [--strict] [--harness text|claude-code|codex] <context-file>',
+  'usage: cg extract [--strict] [--harness text|claude-code|codex|cursor] <context-file-or-project-dir>',
   '       cg conformance [--json] [--match id|exact] [--threshold <t>] [--strict] <original> <compacted>',
   '       cg pin <constraints-json|-> <context-file>',
   '       cg otel constraints [--strict] <context-file>',
@@ -70,22 +70,28 @@ function cmdExtract(args) {
   if (files.length > 1) fail(`extract: expected one context file, got ${files.length}\n${USAGE}`);
 
   const file = files[0];
-  let text;
-  try {
-    text = readFileSync(file, 'utf8');
-  } catch (err) {
-    fail(`extract: cannot read ${file}: ${err.message}`);
-  }
-
   const onWarning = (msg) => process.stderr.write(`warning: ${msg}\n`);
 
-  // Pre-process the raw file through the selected harness adapter. `text` (the
-  // default) is the identity adapter, so this is a no-op unless --harness is set.
+  // Resolve the raw context, then hand it to the shared `extractConstraints`
+  // path below. `cursor` accepts a project directory (discovering its rule
+  // sources) as well as a single rule file, so it owns its own reading; every
+  // other harness reads the one named file and runs it through its adapter
+  // (`text`, the default, is the identity adapter — a no-op).
   let context;
-  try {
-    context = adaptHarness(harness, text, { onWarning });
-  } catch (err) {
-    fail(`extract: ${err.message}`);
+  if (harness === 'cursor') {
+    context = readCursorContext(file, onWarning);
+  } else {
+    let text;
+    try {
+      text = readFileSync(file, 'utf8');
+    } catch (err) {
+      fail(`extract: cannot read ${file}: ${err.message}`);
+    }
+    try {
+      context = adaptHarness(harness, text, { onWarning });
+    } catch (err) {
+      fail(`extract: ${err.message}`);
+    }
   }
 
   let set;
@@ -97,6 +103,81 @@ function cmdExtract(args) {
 
   if (set.length === 0) process.stderr.write('note: no constraints found\n');
   process.stdout.write(JSON.stringify(set, null, 2) + '\n');
+}
+
+// Resolve the isolated context for `--harness cursor`. `path` is either a single
+// rule file (read + adapted directly) or a project root, in which case we
+// discover its rule sources — `<root>/.cursorrules` and every
+// `<root>/.cursor/rules/*.mdc`, in deterministic sorted order — adapt each
+// through the pure `cursor` adapter, and join them. Discovery is the only
+// filesystem work the cursor adapter needs, so it lives here (the CLI owns I/O),
+// keeping the library adapter pure. A *missing* `.cursorrules` / rules dir is
+// normal (not an error); a *present-but-unreadable* one fails clearly.
+function readCursorContext(path, onWarning) {
+  let stat;
+  try {
+    stat = statSync(path);
+  } catch (err) {
+    fail(`extract: cannot read ${path}: ${err.message}`);
+  }
+
+  if (!stat.isDirectory()) {
+    // A single rule file: adapt it directly (`.mdc` → strip frontmatter). The
+    // extension gates stripping, so a `.cursorrules` starting with a `---`
+    // markdown rule is never mistaken for frontmatter.
+    let raw;
+    try {
+      raw = readFileSync(path, 'utf8');
+    } catch (err) {
+      fail(`extract: cannot read ${path}: ${err.message}`);
+    }
+    return adaptHarness('cursor', raw, { mdc: path.endsWith('.mdc'), onWarning });
+  }
+
+  const parts = [];
+  let found = 0;
+
+  // 1. Legacy plaintext `.cursorrules` at the project root (if present).
+  const rulesFile = join(path, '.cursorrules');
+  try {
+    const raw = readFileSync(rulesFile, 'utf8');
+    found++;
+    const ctx = adaptHarness('cursor', raw, { mdc: false, onWarning });
+    if (ctx) parts.push(ctx);
+  } catch (err) {
+    if (err.code !== 'ENOENT') fail(`extract: cannot read ${rulesFile}: ${err.message}`);
+  }
+
+  // 2. Every `<root>/.cursor/rules/*.mdc`, sorted for a deterministic union.
+  const rulesDir = join(path, '.cursor', 'rules');
+  let entries = null;
+  try {
+    entries = readdirSync(rulesDir);
+  } catch (err) {
+    if (err.code !== 'ENOENT') fail(`extract: cannot read ${rulesDir}: ${err.message}`);
+  }
+  if (entries) {
+    for (const name of entries.filter((n) => n.endsWith('.mdc')).sort()) {
+      const mdcFile = join(rulesDir, name);
+      let raw;
+      try {
+        raw = readFileSync(mdcFile, 'utf8');
+      } catch (err) {
+        fail(`extract: cannot read ${mdcFile}: ${err.message}`);
+      }
+      found++;
+      const ctx = adaptHarness('cursor', raw, { mdc: true, onWarning });
+      if (ctx) parts.push(ctx);
+    }
+  }
+
+  if (found === 0) {
+    onWarning(`no Cursor rule sources found under ${path} (looked for .cursorrules and .cursor/rules/*.mdc)`);
+    return '';
+  }
+  // Blank line between sources so a fence never welds onto adjacent text and
+  // each stays independently detectable by #2's line scanner.
+  return parts.join('\n\n');
 }
 
 function cmdPin(args) {
