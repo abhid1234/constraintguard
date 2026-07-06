@@ -21,4 +21,8 @@ declared / dropped" shows up in your agent's trace.
 
 Open format, dependency-free, cross-harness. Run the tests: `npm test`.
 
+Reproduce the ConstraintRot drop on committed sample sessions: `npm run bench`. It
+scores each session's original context against its compacted version with
+`cg conformance` and prints a retention table plus the aggregate drop.
+
 > Built by the Foundry software factory. Issues here are triaged, specced, implemented, reviewed and shipped by agents, with human approval at the gates.
