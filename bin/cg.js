@@ -1,14 +1,15 @@
 #!/usr/bin/env node
 // ConstraintGuard CLI. Subcommands are added issue-by-issue; today: `extract`,
-// `conformance`. Future subcommands (`validate`, `pin`) slot in as sibling
+// `conformance`, `pin`. Future subcommands (`validate`) slot in as sibling
 // cases in main(). Zero dependencies: Node standard library only.
 
 import { readFileSync } from 'node:fs';
-import { extractConstraints, scoreConformance } from '../src/index.js';
+import { extractConstraints, scoreConformance, pinConstraints } from '../src/index.js';
 
 const USAGE = [
   'usage: cg extract [--strict] <context-file>',
   '       cg conformance [--json] [--match id|exact] [--threshold <t>] [--strict] <original> <compacted>',
+  '       cg pin <constraints-json|-> <context-file>',
 ].join('\n');
 
 function main(argv) {
@@ -18,6 +19,8 @@ function main(argv) {
       return cmdExtract(rest);
     case 'conformance':
       return cmdConformance(rest);
+    case 'pin':
+      return cmdPin(rest);
     case undefined:
     case '-h':
     case '--help':
@@ -60,6 +63,51 @@ function cmdExtract(args) {
 
   if (set.length === 0) process.stderr.write('note: no constraints found\n');
   process.stdout.write(JSON.stringify(set, null, 2) + '\n');
+}
+
+function cmdPin(args) {
+  const files = [];
+  for (const a of args) {
+    if (a === '-h' || a === '--help') return void process.stdout.write(USAGE + '\n');
+    else if (a.startsWith('-') && a !== '-') fail(`pin: unknown option ${JSON.stringify(a)}\n${USAGE}`);
+    else files.push(a);
+  }
+  if (files.length < 2) fail(`pin: a constraints source and a context file are required\n${USAGE}`);
+  if (files.length > 2) fail(`pin: expected <constraints-json|-> <context-file>, got ${files.length} arguments\n${USAGE}`);
+
+  const [source, ctxFile] = files;
+
+  let raw;
+  try {
+    // `-` reads the constraint set from stdin (fd 0), so it pipes from `extract`:
+    //   cg extract old.md | cg pin - compacted.md
+    raw = readFileSync(source === '-' ? 0 : source, 'utf8');
+  } catch (err) {
+    fail(`pin: cannot read ${source === '-' ? 'stdin' : source}: ${err.message}`);
+  }
+
+  let set;
+  try {
+    set = JSON.parse(raw);
+  } catch (err) {
+    fail(`pin: invalid JSON constraint set: ${err.message}`);
+  }
+
+  let ctx;
+  try {
+    ctx = readFileSync(ctxFile, 'utf8');
+  } catch (err) {
+    fail(`pin: cannot read ${ctxFile}: ${err.message}`);
+  }
+
+  let out;
+  try {
+    out = pinConstraints(set, ctx);
+  } catch (err) {
+    fail(`pin: ${err.message}`);
+  }
+
+  process.stdout.write(out.endsWith('\n') ? out : out + '\n');
 }
 
 function cmdConformance(args) {
