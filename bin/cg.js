@@ -3,7 +3,9 @@
 // `conformance`, `pin`, `otel`. Future subcommands (`validate`) slot in as
 // sibling cases in main(). Zero dependencies: Node standard library only.
 
-import { readFileSync } from 'node:fs';
+import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import {
   extractConstraints,
   scoreConformance,
@@ -13,6 +15,7 @@ import {
   adaptHarness,
   HARNESSES,
 } from '../src/index.js';
+import { runPreCompact, runSessionStart, safeSessionKey } from '../src/hook.js';
 
 const USAGE = [
   'usage: cg extract [--strict] [--harness text|claude-code] <context-file>',
@@ -20,6 +23,8 @@ const USAGE = [
   '       cg pin <constraints-json|-> <context-file>',
   '       cg otel constraints [--strict] <context-file>',
   '       cg otel conformance [--match id|exact] [--strict] <original> <compacted>',
+  '       cg hook pre-compact    # PreCompact: cache declared constraints (stdin: hook JSON)',
+  '       cg hook session-start  # SessionStart(compact): re-inject cached constraints',
 ].join('\n');
 
 function main(argv) {
@@ -33,6 +38,8 @@ function main(argv) {
       return cmdPin(rest);
     case 'otel':
       return cmdOtel(rest);
+    case 'hook':
+      return cmdHook(rest);
     case undefined:
     case '-h':
     case '--help':
@@ -285,6 +292,70 @@ function cmdOtelConformance(args) {
     fail(`otel: ${err.message}`);
   }
   process.stdout.write(JSON.stringify(attrs, null, 2) + '\n');
+}
+
+// `cg hook <event>` — adapt Claude Code's compaction hooks to the shipped
+// `extract`/`pin` operations (#22). Each event reads the hook JSON on stdin and,
+// for `session-start`, writes `additionalContext` JSON to stdout. The engine
+// lives in `src/hook.js` and NEVER throws or exits non-zero on a hook error, so
+// a hook can't break the user's session; this shell just wires in real I/O.
+function cmdHook(args) {
+  const [mode] = args;
+  switch (mode) {
+    case 'pre-compact':
+      return runHook(runPreCompact, { readFileSync, readCache, writeCache });
+    case 'session-start':
+      return runHook(runSessionStart, { readCache });
+    case '-h':
+    case '--help':
+      return void process.stdout.write(USAGE + '\n');
+    case undefined:
+      return fail(`hook: an event is required (pre-compact | session-start)\n${USAGE}`);
+    default:
+      return fail(`hook: unknown event ${JSON.stringify(mode)} (expected pre-compact | session-start)\n${USAGE}`);
+  }
+}
+
+// Read all of stdin (fd 0), run a hook function, and honor its result. Reading
+// stdin can fail (empty/closed) — that yields '', which the hook parses into a
+// silent no-op. The exit code is always 0 in practice, but we honor whatever
+// the hook returns explicitly.
+function runHook(fn, deps) {
+  let stdin = '';
+  try {
+    stdin = readFileSync(0, 'utf8');
+  } catch {
+    stdin = '';
+  }
+  const result = fn(stdin, deps);
+  if (result.stdout) process.stdout.write(result.stdout);
+  if (result.stderr) process.stderr.write(result.stderr);
+  process.exit(result.exitCode);
+}
+
+// Per-session constraint cache under the OS temp dir (no repo pollution, no
+// gitignore entry). One JSON file per session, holding the constraint set
+// exactly as `extract`/`pin` produce and consume it.
+function cacheFile(sessionId) {
+  return join(tmpdir(), 'constraintguard', `${safeSessionKey(sessionId)}.json`);
+}
+
+// Load a session's cached set, or [] when absent or unreadable/corrupt. Never
+// throws — a bad cache degrades to "nothing cached", preserving the hook's
+// never-break-the-session contract.
+function readCache(sessionId) {
+  try {
+    return JSON.parse(readFileSync(cacheFile(sessionId), 'utf8'));
+  } catch {
+    return [];
+  }
+}
+
+// Persist a session's constraint set, creating the cache dir on first write.
+function writeCache(sessionId, set) {
+  const path = cacheFile(sessionId);
+  mkdirSync(join(tmpdir(), 'constraintguard'), { recursive: true });
+  writeFileSync(path, JSON.stringify(set));
 }
 
 // Read a context file, failing (exit 1) with a clear message if unreadable.

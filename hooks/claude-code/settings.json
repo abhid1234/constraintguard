@@ -1,0 +1,13 @@
+{
+  "hooks": {
+    "PreCompact": [
+      { "hooks": [ { "type": "command", "command": "cg hook pre-compact" } ] }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "compact",
+        "hooks": [ { "type": "command", "command": "cg hook session-start" } ]
+      }
+    ]
+  }
+}
