@@ -1,0 +1,14 @@
+---
+description: TypeScript style rules
+globs: "*.ts"
+alwaysApply: false
+---
+
+# Style
+
+This rule is glob-scoped (`globs: "*.ts"`) and not always-applied, yet its
+fenced constraint is still declared and must be extracted.
+
+```constraints
+should [tabs]: Indent with tabs, not spaces.
+```

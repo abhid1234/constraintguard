@@ -1,0 +1,10 @@
+---
+description: Documentation rules
+alwaysApply: true
+---
+
+# Documentation
+
+Always write clear docstrings and prefer examples over prose. These are real
+rules, but they carry no `constraints` fence, so ConstraintGuard extracts
+nothing from this file.

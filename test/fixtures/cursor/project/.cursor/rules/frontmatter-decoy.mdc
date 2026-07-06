@@ -1,0 +1,13 @@
+---
+description: |
+  ```constraints
+  must [decoy]: A fence INSIDE the frontmatter must never be extracted.
+  ```
+alwaysApply: true
+---
+
+# Decoy
+
+The only `constraints` fence in this file sits inside the frontmatter, which is
+stripped before extraction. The body has no fence, so this file contributes
+nothing to the constraint set.
