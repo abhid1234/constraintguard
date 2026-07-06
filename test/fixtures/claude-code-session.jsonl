@@ -1,0 +1,6 @@
+{"type":"queue-operation","op":"enqueue","note":"non-message record, must be ignored"}
+{"type":"user","message":{"role":"user","content":"Here are the rules for this session.\n\n```constraints\nmust [no-pii]: Never leak personal data.\nshould: Keep replies concise.\n```"}}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"thinking","thinking":"```constraints\nmust [decoy-think]: This thinking-block fence must be ignored.\n```"},{"type":"text","text":"Understood. Note ```constraints\nmust [decoy-assistant]: Assistant fence must be ignored.\n```"}]}}
+{"type":"user","message":{"role":"user","content":[{"type":"tool_result","tool_use_id":"t1","content":"file dump ```constraints\nmust [decoy-tool]: Tool-result fence must be ignored.\n```"},{"type":"text","text":"One more rule:\n\n```constraints\nmust [audit-log]: Always write an audit log entry.\n```"}]}}
+{"type":"user","message":{"role":"user","content":"trailing turn with no fence"}}
+{"type":"user","message":{"role":"user","content":[{"type":"text","text":"truncated final line below is inten

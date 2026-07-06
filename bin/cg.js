@@ -10,10 +10,12 @@ import {
   pinConstraints,
   constraintsToSpanAttributes,
   conformanceToSpanAttributes,
+  adaptHarness,
+  HARNESSES,
 } from '../src/index.js';
 
 const USAGE = [
-  'usage: cg extract [--strict] <context-file>',
+  'usage: cg extract [--strict] [--harness text|claude-code] <context-file>',
   '       cg conformance [--json] [--match id|exact] [--threshold <t>] [--strict] <original> <compacted>',
   '       cg pin <constraints-json|-> <context-file>',
   '       cg otel constraints [--strict] <context-file>',
@@ -43,11 +45,18 @@ function main(argv) {
 
 function cmdExtract(args) {
   let strict = false;
+  let harness = 'text';
   const files = [];
-  for (const a of args) {
+  for (let i = 0; i < args.length; i++) {
+    const a = args[i];
     if (a === '--strict') strict = true;
     else if (a === '-h' || a === '--help') return void process.stdout.write(USAGE + '\n');
-    else if (a.startsWith('-') && a !== '-') fail(`extract: unknown option ${JSON.stringify(a)}\n${USAGE}`);
+    else if (a === '--harness') {
+      harness = args[++i];
+      if (harness === undefined || (harness.startsWith('-') && harness !== '-')) {
+        fail(`extract: --harness requires a value (one of: ${HARNESSES.join(', ')})\n${USAGE}`);
+      }
+    } else if (a.startsWith('-') && a !== '-') fail(`extract: unknown option ${JSON.stringify(a)}\n${USAGE}`);
     else files.push(a);
   }
   if (files.length === 0) fail(`extract: a context file is required\n${USAGE}`);
@@ -61,12 +70,20 @@ function cmdExtract(args) {
     fail(`extract: cannot read ${file}: ${err.message}`);
   }
 
+  const onWarning = (msg) => process.stderr.write(`warning: ${msg}\n`);
+
+  // Pre-process the raw file through the selected harness adapter. `text` (the
+  // default) is the identity adapter, so this is a no-op unless --harness is set.
+  let context;
+  try {
+    context = adaptHarness(harness, text, { onWarning });
+  } catch (err) {
+    fail(`extract: ${err.message}`);
+  }
+
   let set;
   try {
-    set = extractConstraints(text, {
-      strict,
-      onWarning: (msg) => process.stderr.write(`warning: ${msg}\n`),
-    });
+    set = extractConstraints(context, { strict, onWarning });
   } catch (err) {
     fail(`extract: ${err.message}`);
   }

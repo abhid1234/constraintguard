@@ -7,6 +7,7 @@ When a long-running agent summarizes its history to fit the context window, its 
 ```bash
 cg validate constraints.json   # is this a well-formed constraint set?
 cg extract session.md          # pull declared constraints out of a context
+cg extract --harness claude-code session.jsonl  # …or straight from a Claude Code transcript
 cg pin constraints.json ctx.md # re-inject constraints into a (compacted) context
 cg conformance orig.md new.md  # score how well constraints survive compaction
 cg otel constraints ctx.md     # map constraints to OpenTelemetry span attributes

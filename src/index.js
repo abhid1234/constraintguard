@@ -7,3 +7,4 @@ export { extractConstraints } from './extract.js';
 export { scoreConformance } from './conformance.js';
 export { pinConstraints } from './pin.js';
 export { constraintsToSpanAttributes, conformanceToSpanAttributes } from './otel.js';
+export { adaptHarness, extractFromHarness, HARNESSES } from './harness/index.js';
