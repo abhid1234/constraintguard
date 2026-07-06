@@ -2,3 +2,5 @@ node_modules/
 *.log
 .cg-*.json
 .agents/
+\n# Factory prompts and agent configs
+.agents/
