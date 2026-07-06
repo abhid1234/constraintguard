@@ -4,15 +4,18 @@
 // harness-native artifact into the plain-text context `cg extract` (#2) already
 // consumes. `text` is the identity adapter — today's behavior, returned
 // verbatim — so omitting `--harness` is a no-op. `claude-code` isolates the
-// operator's text from a Claude Code `.jsonl` transcript. Adding a harness
-// (Codex, per the roadmap) is a one-line registry entry.
+// operator's text from a Claude Code `.jsonl` transcript; `codex` does the same
+// for an OpenAI Codex CLI `.jsonl` rollout. Adding a harness is a one-line
+// registry entry.
 
 import { extractConstraints } from '../extract.js';
 import { claudeCodeToContext } from './claude-code.js';
+import { codexToContext } from './codex.js';
 
 const ADAPTERS = {
   text: (raw) => raw,
   'claude-code': claudeCodeToContext,
+  codex: codexToContext,
 };
 
 // Supported harness names, for usage/error text.

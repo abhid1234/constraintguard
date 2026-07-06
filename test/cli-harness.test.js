@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 
 const CG = fileURLToPath(new URL('../bin/cg.js', import.meta.url));
 const FIXTURE = fileURLToPath(new URL('./fixtures/claude-code-session.jsonl', import.meta.url));
+const CODEX_FIXTURE = fileURLToPath(new URL('./fixtures/codex-session.jsonl', import.meta.url));
 
 function run(args, opts = {}) {
   return spawnSync(process.execPath, [CG, ...args], { encoding: 'utf8', ...opts });
@@ -51,6 +52,35 @@ test('cg extract --strict --harness claude-code does not crash on a malformed tr
 test('cg extract --harness claude-code with no fence prints [] and a note, exits 0', () => {
   const path = fixture('nofence.jsonl', '{"type":"user","message":{"role":"user","content":"just chatting"}}');
   const res = run(['extract', '--harness', 'claude-code', path]);
+  assert.equal(res.status, 0);
+  assert.deepEqual(JSON.parse(res.stdout), []);
+  assert.match(res.stderr, /no constraints found/);
+});
+
+test('cg extract --harness codex extracts user constraints, exits 0, decoys absent', () => {
+  const res = run(['extract', '--harness', 'codex', CODEX_FIXTURE]);
+  assert.equal(res.status, 0, res.stderr);
+  const set = JSON.parse(res.stdout);
+  assert.deepEqual(set, [
+    { id: 'no-pii', text: 'Never leak personal data.', severity: 'must' },
+    { id: 'keep-replies-concise', text: 'Keep replies concise.', severity: 'should' },
+    { id: 'audit-log', text: 'Always write an audit log entry.', severity: 'must' },
+  ]);
+  assert.ok(!res.stdout.includes('decoy'), 'decoy constraints leaked to output');
+});
+
+test('cg extract --strict --harness codex tolerates the truncated final rollout line (warns, exits 0)', () => {
+  const res = run(['extract', '--strict', '--harness', 'codex', CODEX_FIXTURE]);
+  assert.equal(res.status, 0, res.stderr);
+  assert.match(res.stderr, /not valid JSON/);
+});
+
+test('cg extract --harness codex with no fence prints [] and a note, exits 0', () => {
+  const path = fixture(
+    'nofence.jsonl',
+    '{"type":"response_item","payload":{"type":"message","role":"user","content":[{"type":"input_text","text":"just chatting"}]}}',
+  );
+  const res = run(['extract', '--harness', 'codex', path]);
   assert.equal(res.status, 0);
   assert.deepEqual(JSON.parse(res.stdout), []);
   assert.match(res.stderr, /no constraints found/);
