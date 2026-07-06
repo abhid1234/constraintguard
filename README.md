@@ -9,7 +9,12 @@ cg validate constraints.json   # is this a well-formed constraint set?
 cg extract session.md          # pull declared constraints out of a context
 cg pin constraints.json ctx.md # re-inject constraints into a (compacted) context
 cg conformance orig.md new.md  # score how well constraints survive compaction
+cg otel constraints ctx.md     # map constraints to OpenTelemetry span attributes
 ```
+
+The `otel` command emits a flat attribute object under the stable `constraintguard.*`
+namespace (no OpenTelemetry SDK) — attach it to any span so "which constraints were
+declared / dropped" shows up in your agent's trace.
 
 Open format, dependency-free, cross-harness. Run the tests: `npm test`.
 

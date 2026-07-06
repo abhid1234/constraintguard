@@ -1,15 +1,23 @@
 #!/usr/bin/env node
 // ConstraintGuard CLI. Subcommands are added issue-by-issue; today: `extract`,
-// `conformance`, `pin`. Future subcommands (`validate`) slot in as sibling
-// cases in main(). Zero dependencies: Node standard library only.
+// `conformance`, `pin`, `otel`. Future subcommands (`validate`) slot in as
+// sibling cases in main(). Zero dependencies: Node standard library only.
 
 import { readFileSync } from 'node:fs';
-import { extractConstraints, scoreConformance, pinConstraints } from '../src/index.js';
+import {
+  extractConstraints,
+  scoreConformance,
+  pinConstraints,
+  constraintsToSpanAttributes,
+  conformanceToSpanAttributes,
+} from '../src/index.js';
 
 const USAGE = [
   'usage: cg extract [--strict] <context-file>',
   '       cg conformance [--json] [--match id|exact] [--threshold <t>] [--strict] <original> <compacted>',
   '       cg pin <constraints-json|-> <context-file>',
+  '       cg otel constraints [--strict] <context-file>',
+  '       cg otel conformance [--match id|exact] [--strict] <original> <compacted>',
 ].join('\n');
 
 function main(argv) {
@@ -21,6 +29,8 @@ function main(argv) {
       return cmdConformance(rest);
     case 'pin':
       return cmdPin(rest);
+    case 'otel':
+      return cmdOtel(rest);
     case undefined:
     case '-h':
     case '--help':
@@ -168,6 +178,96 @@ function cmdConformance(args) {
   // --threshold turns the command into a CI gate; exit 2 (distinct from the
   // exit-1 error path) when the score falls below the gate.
   if (threshold !== undefined && result.score < threshold) process.exit(2);
+}
+
+// `cg otel <mode> …` — print ConstraintGuard data as OpenTelemetry span
+// attributes (JSON). Two modes mirror the two library mappers and reuse the
+// extract / conformance plumbing; `otel` is a pure printer, so it always exits
+// 0 on success (no `--threshold`/exit-2 gate).
+function cmdOtel(args) {
+  const [mode, ...rest] = args;
+  switch (mode) {
+    case 'constraints':
+      return cmdOtelConstraints(rest);
+    case 'conformance':
+      return cmdOtelConformance(rest);
+    case '-h':
+    case '--help':
+      return void process.stdout.write(USAGE + '\n');
+    case undefined:
+      return fail(`otel: a mode is required (constraints | conformance)\n${USAGE}`);
+    default:
+      return fail(`otel: unknown mode ${JSON.stringify(mode)} (expected constraints | conformance)\n${USAGE}`);
+  }
+}
+
+function cmdOtelConstraints(args) {
+  let strict = false;
+  const files = [];
+  for (const a of args) {
+    if (a === '--strict') strict = true;
+    else if (a === '-h' || a === '--help') return void process.stdout.write(USAGE + '\n');
+    else if (a.startsWith('-') && a !== '-') fail(`otel: unknown option ${JSON.stringify(a)}\n${USAGE}`);
+    else files.push(a);
+  }
+  if (files.length !== 1) {
+    fail(`otel constraints: expected one context file, got ${files.length}\n${USAGE}`);
+  }
+
+  const text = readContext('otel', files[0]);
+  let attrs;
+  try {
+    const set = extractConstraints(text, {
+      strict,
+      onWarning: (msg) => process.stderr.write(`warning: ${msg}\n`),
+    });
+    attrs = constraintsToSpanAttributes(set);
+  } catch (err) {
+    fail(`otel: ${err.message}`);
+  }
+  process.stdout.write(JSON.stringify(attrs, null, 2) + '\n');
+}
+
+function cmdOtelConformance(args) {
+  let strict = false;
+  let match = 'exact';
+  const files = [];
+  for (let i = 0; i < args.length; i++) {
+    const a = args[i];
+    if (a === '--strict') strict = true;
+    else if (a === '-h' || a === '--help') return void process.stdout.write(USAGE + '\n');
+    else if (a === '--match') {
+      match = args[++i];
+      if (match !== 'id' && match !== 'exact') {
+        fail(`otel: --match must be "id" or "exact", got ${JSON.stringify(match)}\n${USAGE}`);
+      }
+    } else if (a.startsWith('-') && a !== '-') {
+      fail(`otel: unknown option ${JSON.stringify(a)}\n${USAGE}`);
+    } else files.push(a);
+  }
+  if (files.length !== 2) {
+    fail(`otel conformance: expected <original> <compacted>, got ${files.length} file argument(s)\n${USAGE}`);
+  }
+
+  const [originalPath, compactedPath] = files;
+  const original = readContext('otel', originalPath);
+  const compacted = readContext('otel', compactedPath);
+
+  let attrs;
+  try {
+    const result = scoreConformance(original, compacted, {
+      match,
+      strict,
+      onWarning: (msg, source) => {
+        const label = source === 'compacted' ? compactedPath : originalPath;
+        process.stderr.write(`warning: ${label}: ${msg}\n`);
+      },
+    });
+    attrs = conformanceToSpanAttributes(result);
+  } catch (err) {
+    fail(`otel: ${err.message}`);
+  }
+  process.stdout.write(JSON.stringify(attrs, null, 2) + '\n');
 }
 
 // Read a context file, failing (exit 1) with a clear message if unreadable.
