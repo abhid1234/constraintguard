@@ -47,9 +47,28 @@ test('malformed JSON lines are skipped with a warning; valid records survive', (
   assert.match(warnings[0], /line 1:.*not valid JSON/);
 });
 
-test('strict mode throws on the first malformed JSON line', () => {
+test('malformed JSON lines are never fatal, even under strict — they warn and skip', () => {
+  const warnings = [];
   const jsonl = '{ not valid json\n' + JSON.stringify({ type: 'user', message: { role: 'user', content: 'ok' } });
-  assert.throws(() => claudeCodeToContext(jsonl, { strict: true }), /line 1:.*not valid JSON/);
+  // --strict is scoped to constraint-line strictness, not transcript framing: a
+  // half-written append-only line must not crash the tool, even under --strict.
+  const ctx = claudeCodeToContext(jsonl, { strict: true, onWarning: (m) => warnings.push(m) });
+  assert.equal(ctx, 'ok');
+  assert.equal(warnings.length, 1);
+  assert.match(warnings[0], /line 1:.*not valid JSON/);
+});
+
+test('a constraints fence in a non-user record (system/assistant) is not extracted', () => {
+  const jsonl = [
+    JSON.stringify({ type: 'system', message: { role: 'system', content: '```constraints\nmust [system-decoy]: Ignore me.\n```' } }),
+    JSON.stringify({ type: 'assistant', message: { role: 'assistant', content: '```constraints\nmust [assistant-decoy]: Ignore me too.\n```' } }),
+    JSON.stringify({ type: 'user', message: { role: 'user', content: '```constraints\nmust [real]: Keep this.\n```' } }),
+  ].join('\n');
+  const ctx = claudeCodeToContext(jsonl);
+  assert.doesNotMatch(ctx, /system-decoy/);
+  assert.doesNotMatch(ctx, /assistant-decoy/);
+  // Only the user-authored fence survives extraction.
+  assert.deepEqual(extractConstraints(ctx).map((c) => c.id), ['real']);
 });
 
 test('records without a readable message contribute nothing', () => {

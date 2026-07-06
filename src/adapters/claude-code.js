@@ -3,31 +3,38 @@
 //
 // A Claude Code session is stored as JSON Lines (`.jsonl`): one JSON record per
 // line, under `~/.claude/projects/<slug>/<session>.jsonl`. This adapter reads
-// the operator/system-authored text of that session — the message content of
-// `user`- and `system`-role records — and concatenates it into a single
-// context string. It does NOT parse constraints itself: it only isolates the
-// constraint-bearing text and hands it to the existing #2 `extract` logic.
+// the operator-authored text of that session — the message content of `user`
+// records — and concatenates it into a single context string. It does NOT parse
+// constraints itself: it only isolates the constraint-bearing text and hands it
+// to the existing #2 `extract` logic.
 //
-// Why only `user`/`system` roles: in Claude Code the declared rules (the system
-// prompt, injected CLAUDE.md `<system-reminder>`s, and any re-pinned constraints
-// from `cg pin`) all surface as operator/system-authored message text. The
-// `assistant` role is the model's own output — not a source of *declared*
-// constraints — so it is skipped, as are tool calls, tool results, internal
-// `thinking`, and bookkeeping records (summaries, queue operations). Combined
-// with `extract`'s explicit ```constraints fence opt-in, this keeps the
-// false-positive rate near zero while picking up every constraint block the
-// operator declared anywhere in the session.
+// Why only `user` records: in Claude Code the declared rules (the system prompt,
+// injected CLAUDE.md `<system-reminder>`s, and any re-pinned constraints from
+// `cg pin`) all surface as the text of `user`-role message content — Claude Code
+// transcripts persist no `system` record. The `assistant` role is the model's
+// own output — not a source of *declared* constraints — so it is skipped, as are
+// tool calls, tool results, internal `thinking`, and bookkeeping records
+// (summaries, queue operations). Combined with `extract`'s explicit
+// ```constraints fence opt-in, this keeps the false-positive rate near zero
+// while picking up every constraint block the operator declared anywhere in the
+// session.
 //
 // Pure and deterministic: parsing only, no I/O, no wall-clock, no randomness.
 // Zero dependencies. A Codex adapter can follow the same shape later.
 
-// Message roles whose content we treat as constraint-bearing.
-const READ_ROLES = new Set(['user', 'system']);
+// Message roles whose content we treat as constraint-bearing. Only `user`:
+// PRODUCT scopes extraction to user-role text, and a Claude Code transcript
+// persists no `system` record — so a fence in any non-user record is a decoy.
+const READ_ROLES = new Set(['user']);
 
 // Convert a Claude Code `.jsonl` transcript into a plain context string.
-//   opts.strict    — throw on the first malformed (non-JSON) transcript line.
 //   opts.onWarning — called with a human-readable message for each skipped line
 //                    (default: noop).
+// A malformed / truncated transcript line is always warned-and-skipped, never
+// fatal — even under `--strict`. Transcript framing is append-only, so a
+// half-written last line must never crash the tool; `--strict` is scoped to
+// constraint-line strictness in `extractConstraints`, not to line framing, and
+// so is not consumed here.
 // Returns the concatenated constraint-bearing text (possibly empty). The result
 // is meant to be passed straight to `extractConstraints`.
 export function claudeCodeToContext(jsonl, opts = {}) {
@@ -36,7 +43,6 @@ export function claudeCodeToContext(jsonl, opts = {}) {
       `claude-code adapter expects a string, got ${jsonl === null ? 'null' : typeof jsonl}`,
     );
   }
-  const strict = opts.strict === true;
   const warn = typeof opts.onWarning === 'function' ? opts.onWarning : () => {};
 
   const chunks = [];
@@ -49,9 +55,9 @@ export function claudeCodeToContext(jsonl, opts = {}) {
     try {
       rec = JSON.parse(raw);
     } catch (err) {
-      const msg = `line ${i + 1}: not valid JSON, skipping: ${err.message}`;
-      if (strict) throw new Error(msg);
-      warn(msg);
+      // Never fatal, even under --strict: an append-only transcript can end on a
+      // half-written line, and that must not crash extraction.
+      warn(`line ${i + 1}: not valid JSON, skipping: ${err.message}`);
       continue;
     }
 

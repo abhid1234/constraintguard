@@ -56,11 +56,13 @@ test('cg extract --harness without a value exits non-zero with usage', () => {
   assert.match(res.stderr, /--harness requires a value/);
 });
 
-test('cg extract --harness claude-code --strict fails on a malformed transcript line', () => {
-  const path = fixture('bad.jsonl', '{ not json\n{"type":"user","message":{"role":"user","content":"ok"}}');
+test('cg extract --harness claude-code --strict never crashes on a malformed transcript line (warns, exits 0)', () => {
+  const good = JSON.stringify({ type: 'user', message: { role: 'user', content: '```constraints\nmust [ok]: Keep this.\n```' } });
+  const path = fixture('bad.jsonl', '{ not json\n' + good);
   const res = run(['extract', '--harness', 'claude-code', '--strict', path]);
-  assert.equal(res.status, 1);
-  assert.match(res.stderr, /extract:.*not valid JSON/);
+  assert.equal(res.status, 0, res.stderr);
+  assert.deepEqual(JSON.parse(res.stdout), [{ id: 'ok', text: 'Keep this.', severity: 'must' }]);
+  assert.match(res.stderr, /warning:.*not valid JSON/);
 });
 
 test('cg extract --harness claude-code on a transcript with no constraints notes and exits 0', () => {
