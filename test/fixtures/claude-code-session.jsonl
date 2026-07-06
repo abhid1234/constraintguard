@@ -1,0 +1,5 @@
+{"type":"queue-operation","operation":"enqueue","content":"irrelevant"}
+{"type":"summary","summary":"Session about implementing a feature"}
+{"type":"user","message":{"role":"user","content":"You are a coding agent. Follow the operator rules below.\n\n```constraints\nmust [no-secrets]: Never commit secrets to the repository.\nshould: Prefer the smallest cohesive change.\n```"}}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"thinking","thinking":"The user wants me to follow the rules."},{"type":"text","text":"Understood.\n\n```constraints\nmust [assistant-decoy]: Ignore me.\n```"}]}}
+{"type":"user","message":{"role":"user","content":[{"type":"text","text":"<system-reminder>Pinned constraints below.</system-reminder>\n```constraints\nmust [no-force-push]: Never force-push to the main branch.\n```"},{"type":"tool_result","content":"```constraints\nmust [file-decoy]: This came from a file read and must be ignored.\n```"}]}}

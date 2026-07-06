@@ -4,10 +4,25 @@
 // cases in main(). Zero dependencies: Node standard library only.
 
 import { readFileSync } from 'node:fs';
-import { extractConstraints, scoreConformance, pinConstraints } from '../src/index.js';
+import {
+  extractConstraints,
+  scoreConformance,
+  pinConstraints,
+  claudeCodeToContext,
+} from '../src/index.js';
+
+// Harness adapters turn a harness-specific transcript into a plain context
+// string before extraction. `text` is the default no-op passthrough (a context
+// file that is already free-form text/markdown); named adapters read a specific
+// harness's session format. New harnesses (e.g. Codex) slot in as sibling keys.
+const ADAPTERS = {
+  text: (s) => s,
+  'claude-code': claudeCodeToContext,
+};
+const HARNESSES = Object.keys(ADAPTERS).join('|');
 
 const USAGE = [
-  'usage: cg extract [--strict] <context-file>',
+  `usage: cg extract [--strict] [--harness ${HARNESSES}] <context-file>`,
   '       cg conformance [--json] [--match id|exact] [--threshold <t>] [--strict] <original> <compacted>',
   '       cg pin <constraints-json|-> <context-file>',
 ].join('\n');
@@ -33,15 +48,23 @@ function main(argv) {
 
 function cmdExtract(args) {
   let strict = false;
+  let harness = 'text';
   const files = [];
-  for (const a of args) {
+  for (let i = 0; i < args.length; i++) {
+    const a = args[i];
     if (a === '--strict') strict = true;
-    else if (a === '-h' || a === '--help') return void process.stdout.write(USAGE + '\n');
+    else if (a === '--harness') {
+      harness = args[++i];
+      if (harness === undefined) fail(`extract: --harness requires a value (one of ${HARNESSES})\n${USAGE}`);
+    } else if (a === '-h' || a === '--help') return void process.stdout.write(USAGE + '\n');
     else if (a.startsWith('-') && a !== '-') fail(`extract: unknown option ${JSON.stringify(a)}\n${USAGE}`);
     else files.push(a);
   }
   if (files.length === 0) fail(`extract: a context file is required\n${USAGE}`);
   if (files.length > 1) fail(`extract: expected one context file, got ${files.length}\n${USAGE}`);
+
+  const adapt = ADAPTERS[harness];
+  if (!adapt) fail(`extract: unknown harness ${JSON.stringify(harness)} (expected one of ${HARNESSES})\n${USAGE}`);
 
   const file = files[0];
   let text;
@@ -51,12 +74,19 @@ function cmdExtract(args) {
     fail(`extract: cannot read ${file}: ${err.message}`);
   }
 
+  const onWarning = (msg) => process.stderr.write(`warning: ${msg}\n`);
+
+  // Adapt the harness-specific transcript into a plain context first, then run
+  // the shared extract logic over the isolated constraint-bearing text.
+  try {
+    text = adapt(text, { strict, onWarning });
+  } catch (err) {
+    fail(`extract: ${err.message}`);
+  }
+
   let set;
   try {
-    set = extractConstraints(text, {
-      strict,
-      onWarning: (msg) => process.stderr.write(`warning: ${msg}\n`),
-    });
+    set = extractConstraints(text, { strict, onWarning });
   } catch (err) {
     fail(`extract: ${err.message}`);
   }

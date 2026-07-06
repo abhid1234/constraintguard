@@ -4,5 +4,6 @@ export const VERSION = '0.1.0';
 
 export { validateConstraintSet } from './schema.js';
 export { extractConstraints } from './extract.js';
+export { claudeCodeToContext } from './adapters/claude-code.js';
 export { scoreConformance } from './conformance.js';
 export { pinConstraints } from './pin.js';
