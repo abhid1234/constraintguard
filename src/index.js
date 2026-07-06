@@ -6,3 +6,4 @@ export { validateConstraintSet } from './schema.js';
 export { extractConstraints } from './extract.js';
 export { scoreConformance } from './conformance.js';
 export { pinConstraints } from './pin.js';
+export { constraintsToSpanAttributes, conformanceToSpanAttributes } from './otel.js';
