@@ -35,8 +35,15 @@ export function runBenchmark(dir = FIXTURES_DIR, opts = {}) {
   for (const name of readdirSync(dir).sort()) {
     const sessionDir = join(dir, name);
     if (!statSync(sessionDir).isDirectory()) continue;
-    const original = readFileSync(join(sessionDir, 'original.md'), 'utf8');
-    const compacted = readFileSync(join(sessionDir, 'compacted.md'), 'utf8');
+    let original, compacted;
+    try {
+      original = readFileSync(join(sessionDir, 'original.md'), 'utf8');
+      compacted = readFileSync(join(sessionDir, 'compacted.md'), 'utf8');
+    } catch (err) {
+      // A session dir must hold both original.md and compacted.md; a malformed
+      // one is a hard error, not a silently-skipped session.
+      throw new Error(`malformed session "${name}": ${err.message}`);
+    }
     const { score, total, survived, dropped } = scoreConformance(original, compacted, { match });
     sessions.push({ name, score, total, survived, dropped });
   }
@@ -88,11 +95,38 @@ export function formatReport(bench) {
   ].join('\n');
 }
 
-function main() {
-  const bench = runBenchmark();
+// Exit-decision helper: the benchmark succeeds (exit 0) only when it actually
+// ran over at least one session AND reproduced a measurable drop (aggregate
+// retention < 1 with at least one constraint dropped). Everything else — no
+// drop, zero sessions — is a non-zero exit, per the measurable-drop guarantee.
+export function exitCode(bench) {
+  const droppedAny = bench.totals.dropped > 0;
+  const measurableDrop = bench.totals.retention < 1 && droppedAny;
+  const ranAnySessions = bench.sessions.length > 0;
+  return ranAnySessions && measurableDrop ? 0 : 1;
+}
+
+function main(argv = process.argv.slice(2)) {
+  const dir = argv[0] || FIXTURES_DIR;
+  let bench;
+  try {
+    bench = runBenchmark(dir);
+  } catch (err) {
+    process.stderr.write(`error: ${err.message}\n`);
+    process.exitCode = 1;
+    return;
+  }
+
   process.stdout.write(formatReport(bench) + '\n');
-  if (bench.totals.dropRate === 0) {
-    process.stderr.write('note: fixtures show no constraint drop — the benchmark is not reproducing ConstraintRot\n');
+
+  const code = exitCode(bench);
+  if (code !== 0) {
+    if (bench.sessions.length === 0) {
+      process.stderr.write(`error: no sessions found in ${dir} — nothing to benchmark\n`);
+    } else {
+      process.stderr.write('error: fixtures show no measurable constraint drop — ConstraintRot not reproduced\n');
+    }
+    process.exitCode = code;
   }
 }
 

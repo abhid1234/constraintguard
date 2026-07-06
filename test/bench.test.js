@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { runBenchmark, formatReport, FIXTURES_DIR } from '../bench/bench.js';
+import { runBenchmark, formatReport, exitCode, FIXTURES_DIR } from '../bench/bench.js';
 
 const BENCH = fileURLToPath(new URL('../bench/bench.js', import.meta.url));
 
@@ -87,4 +87,47 @@ test('npm run bench script runs, exits 0, and prints the drop', () => {
   assert.equal(res.status, 0, res.stderr);
   assert.match(res.stdout, /ConstraintRot reproduction benchmark/);
   assert.match(res.stdout, /ConstraintRot \(dropped after compaction\): \d+\.\d%/);
+});
+
+test('exitCode is 0 only when a measurable drop was reproduced', () => {
+  // Committed fixtures drop constraints → success.
+  assert.equal(exitCode(runBenchmark(FIXTURES_DIR)), 0);
+
+  // Perfect retention (compacted keeps every constraint) → no drop → fail.
+  const perfect = fixtures([
+    { name: '01-a', original: block(['must [a]: keep a']), compacted: block(['must [a]: keep a']) },
+  ]);
+  assert.equal(exitCode(runBenchmark(perfect)), 1);
+
+  // No session dirs at all → nothing benchmarked → fail.
+  const empty = mkdtempSync(join(tmpdir(), 'cg-bench-empty-'));
+  assert.equal(exitCode(runBenchmark(empty)), 1);
+});
+
+test('bench CLI exits non-zero when fixtures show no drop, table still printed', () => {
+  const perfect = fixtures([
+    { name: '01-a', original: block(['must [a]: keep a']), compacted: block(['must [a]: keep a']) },
+  ]);
+  const res = spawnSync(process.execPath, [BENCH, perfect], { encoding: 'utf8' });
+  assert.notEqual(res.status, 0);
+  assert.match(res.stdout, /ConstraintRot reproduction benchmark/); // table printed before exit
+  assert.match(res.stderr, /no measurable constraint drop/);
+});
+
+test('bench CLI exits non-zero on zero sessions with a clear stderr message', () => {
+  const empty = mkdtempSync(join(tmpdir(), 'cg-bench-empty-'));
+  const res = spawnSync(process.execPath, [BENCH, empty], { encoding: 'utf8' });
+  assert.notEqual(res.status, 0);
+  assert.match(res.stderr, /no sessions found/);
+});
+
+test('bench CLI exits non-zero with a clear error on a malformed session dir', () => {
+  const root = mkdtempSync(join(tmpdir(), 'cg-bench-bad-'));
+  const dir = join(root, '01-broken');
+  mkdirSync(dir);
+  writeFileSync(join(dir, 'original.md'), block(['must [a]: keep a']));
+  // compacted.md is missing → malformed session.
+  const res = spawnSync(process.execPath, [BENCH, root], { encoding: 'utf8' });
+  assert.notEqual(res.status, 0);
+  assert.match(res.stderr, /malformed session "01-broken"/);
 });
