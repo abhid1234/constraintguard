@@ -11,11 +11,13 @@
 import { extractConstraints } from '../extract.js';
 import { claudeCodeToContext } from './claude-code.js';
 import { codexToContext } from './codex.js';
+import { cursorToContext } from './cursor.js';
 
 const ADAPTERS = {
   text: (raw) => raw,
   'claude-code': claudeCodeToContext,
   codex: codexToContext,
+  cursor: cursorToContext,
 };
 
 // Supported harness names, for usage/error text.
