@@ -32,16 +32,21 @@ test('happy path: fixture yields exactly the user-declared constraints, in order
   assert.equal(validateConstraintSet(set), set);
 });
 
-test('decoy fences in assistant, reasoning, and tool-output records are excluded', () => {
+test('decoy fences in assistant, reasoning, tool-output, and event_msg records are excluded', () => {
   const set = extractFromHarness('codex', rollout);
   const ids = set.map((c) => c.id);
   assert.ok(!ids.some((id) => id.startsWith('decoy')), `decoys leaked: ${ids.join(', ')}`);
+  // The fixture's event_msg record carries a UNIQUE id, so this proves the
+  // exclusion directly — dedup against a user turn can't mask a regression.
+  assert.ok(!ids.includes('decoy-event'), 'event_msg fence leaked');
 });
 
 test('no double-count: an event_msg echo of a user turn is not scanned', () => {
+  // The event_msg fence carries a UNIQUE id absent from every user turn, so if a
+  // regression started scanning event_msg it would appear here — dedup can't hide it.
   const raw = [
     userMsg('```constraints\nmust [only-once]: Declared exactly once.\n```'),
-    eventEcho('```constraints\nmust [only-once]: Declared exactly once.\n```'),
+    eventEcho('```constraints\nmust [decoy-event]: Event-msg fence must be ignored.\n```'),
   ].join('\n');
   const set = extractFromHarness('codex', raw);
   assert.deepEqual(
