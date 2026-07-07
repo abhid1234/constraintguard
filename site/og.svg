@@ -1,0 +1,71 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0c1018"/>
+      <stop offset="1" stop-color="#090c12"/>
+    </linearGradient>
+    <linearGradient id="fill" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#34d399"/>
+      <stop offset="1" stop-color="#4fd1c5"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="#4fd1c5"/>
+
+  <!-- brand -->
+  <g transform="translate(72,78)">
+    <rect x="0" y="-16" width="22" height="22" rx="6" fill="#4fd1c5"/>
+    <text x="36" y="2" font-family="Helvetica Neue, Arial, sans-serif" font-size="26" font-weight="700" fill="#e7ebf2">constraintguard</text>
+  </g>
+
+  <!-- headline -->
+  <g font-family="Helvetica Neue, Arial, sans-serif" fill="#e7ebf2">
+    <text x="72" y="228" font-size="72" font-weight="800" letter-spacing="-2">Your agent forgets</text>
+    <text x="72" y="308" font-size="72" font-weight="800" letter-spacing="-2">its own rules.</text>
+  </g>
+  <text x="72" y="366" font-family="Helvetica Neue, Arial, sans-serif" font-size="27" fill="#8891a3">Keep declared constraints alive across context compaction.</text>
+
+  <!-- escalation stat -->
+  <g transform="translate(72,430)" font-family="Menlo, monospace">
+    <text x="0" y="0" font-size="16" fill="#5a6273" letter-spacing="1">CONSTRAINT VIOLATIONS AFTER COMPACTION</text>
+    <text x="0" y="58" font-size="52" font-weight="700" fill="#34d399">0%</text>
+    <text x="120" y="58" font-size="40" fill="#5a6273">→</text>
+    <text x="180" y="58" font-size="52" font-weight="700" fill="#fb7185">59%</text>
+    <text x="330" y="52" font-family="Helvetica Neue, Arial, sans-serif" font-size="18" fill="#8891a3">measured · arXiv:2606.22528</text>
+    <text x="330" y="30" font-family="Helvetica Neue, Arial, sans-serif" font-size="18" fill="#8891a3">1,323 episodes · 7 model families</text>
+  </g>
+
+  <!-- npx -->
+  <g transform="translate(72,566)" font-family="Menlo, monospace">
+    <text x="0" y="0" font-size="24" fill="#5a6273">$</text>
+    <text x="22" y="0" font-size="24" fill="#4fd1c5">npx constraintguard</text>
+  </g>
+
+  <!-- right: constraints block mock -->
+  <g transform="translate(760,150)">
+    <rect x="0" y="0" width="368" height="330" rx="18" fill="#121724" stroke="#232c3d"/>
+    <rect x="0" y="0" width="368" height="46" rx="18" fill="#0e1320"/>
+    <rect x="0" y="24" width="368" height="22" fill="#0e1320"/>
+    <circle cx="26" cy="23" r="5" fill="#fb7185"/><circle cx="46" cy="23" r="5" fill="#fbbf24"/><circle cx="66" cy="23" r="5" fill="#34d399"/>
+    <text x="330" y="28" text-anchor="end" font-family="Menlo, monospace" font-size="13" fill="#5a6273">context window</text>
+
+    <!-- constraints sub-card -->
+    <g transform="translate(22,70)">
+      <rect x="0" y="0" width="324" height="120" rx="11" fill="#0f1a1c" stroke="#2b5c56"/>
+      <text x="16" y="26" font-family="Menlo, monospace" font-size="12" fill="#4fd1c5" letter-spacing="1">CONSTRAINTS</text>
+      <text x="16" y="52" font-family="Menlo, monospace" font-size="14" fill="#cdd3dc">must: never delete prod data</text>
+      <text x="16" y="78" font-family="Menlo, monospace" font-size="14" fill="#cdd3dc">must: sign-off before schema</text>
+      <text x="16" y="104" font-family="Menlo, monospace" font-size="14" fill="#cdd3dc">should: prefer small PRs</text>
+    </g>
+
+    <!-- arrow + dropped -->
+    <text x="184" y="222" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="20" fill="#5a6273">compaction ↓</text>
+
+    <g transform="translate(22,236)">
+      <rect x="0" y="0" width="324" height="72" rx="11" fill="#1a0f12" stroke="#7a2c38"/>
+      <text x="16" y="26" font-family="Menlo, monospace" font-size="12" fill="#fb7185" letter-spacing="1">CONSTRAINTS · DROPPED</text>
+      <text x="16" y="52" font-family="Menlo, monospace" font-size="14" fill="#6b5560" text-decoration="line-through">must: never delete prod data</text>
+      <line x1="16" y1="47" x2="250" y2="47" stroke="#fb7185" stroke-width="1.5"/>
+    </g>
+  </g>
+</svg>
