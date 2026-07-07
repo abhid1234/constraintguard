@@ -1,0 +1,150 @@
+// `cg extract` — lift declared constraints out of free-form context.
+//
+// Constraints are declared inside a fenced code block whose info string is
+// `constraints` (```constraints or ~~~constraints). Each non-empty line in the
+// block is one constraint, in the grammar:
+//
+//     <severity> [<optional-id>]: <text>
+//
+//   - severity: `must` or `should` (case-insensitive), required, at line start.
+//   - [id]:     optional explicit id in square brackets; used verbatim.
+//   - text:     everything after the colon, trimmed; must be non-empty.
+//
+// Blank lines and lines starting with `#` (comments) are ignored. Nothing
+// outside a `constraints` fence is ever treated as a rule — the fence is an
+// explicit opt-in, which keeps the false-positive rate near zero. The emitted
+// set always satisfies the #1 schema (`validateConstraintSet`). Pure and
+// deterministic: no I/O, no wall-clock, no randomness. Zero dependencies.
+
+import { validateConstraintSet } from './schema.js';
+
+// Opening fence: ``` or ~~~ (3+) with the info string `constraints`.
+const OPEN_FENCE = /^([`~]{3,})[ \t]*constraints[ \t]*$/i;
+// A constraint line inside a block.
+const LINE = /^(must|should)[ \t]*(?:\[([^\]]+)\])?[ \t]*:[ \t]*(.+)$/i;
+
+// Extract a constraint set from a context string.
+//   opts.strict    — throw on the first malformed line or id conflict.
+//   opts.onWarning — called with a human-readable message for each skipped
+//                    line, id conflict, or unterminated block (default: noop).
+// Returns Array<{ id, text, severity }> (possibly empty), validated against #1.
+export function extractConstraints(text, opts = {}) {
+  if (typeof text !== 'string') {
+    throw new Error(`extract expects a string, got ${text === null ? 'null' : typeof text}`);
+  }
+  const strict = opts.strict === true;
+  const warn = typeof opts.onWarning === 'function' ? opts.onWarning : () => {};
+
+  const parsed = parseBlocks(text, strict, warn);
+
+  const out = [];
+  const usedIds = new Set();
+  const seen = new Set(); // full (severity, baseId, text) signatures, for dedup
+
+  for (const item of parsed) {
+    const base = item.explicitId != null ? item.explicitId : slug(item.text) || 'constraint';
+    const sig = `${item.severity}\u0000${base}\u0000${item.text}`;
+    if (seen.has(sig)) continue; // exact duplicate line — drop it
+    seen.add(sig);
+
+    let id;
+    if (item.explicitId != null) {
+      if (usedIds.has(item.explicitId)) {
+        // Same explicit id, different content: an id conflict. Keep the first.
+        emit(`line ${item.line}: id "${item.explicitId}" already used; keeping the first, skipping this line`, strict, warn);
+        continue;
+      }
+      id = item.explicitId;
+    } else {
+      id = base;
+      let n = 2;
+      while (usedIds.has(id)) id = `${base}-${n++}`;
+    }
+    usedIds.add(id);
+    out.push({ id, text: item.text, severity: item.severity });
+  }
+
+  return validateConstraintSet(out);
+}
+
+// Scan the text line-by-line, returning parsed constraint lines (in document
+// order) from every `constraints` fenced block.
+function parseBlocks(text, strict, warn) {
+  const lines = text.split(/\r?\n/);
+  const items = [];
+  let fence = null; // the opening fence string while inside a block
+  let openLine = 0;
+
+  for (let i = 0; i < lines.length; i++) {
+    const raw = lines[i];
+    const lineNo = i + 1;
+
+    if (fence == null) {
+      const m = raw.match(OPEN_FENCE);
+      if (m) {
+        fence = m[1];
+        openLine = lineNo;
+      }
+      continue;
+    }
+
+    if (isClosingFence(raw, fence)) {
+      fence = null;
+      continue;
+    }
+
+    const line = raw.trim();
+    if (line === '' || line.startsWith('#')) continue;
+
+    const lm = line.match(LINE);
+    if (!lm) {
+      emit(`line ${lineNo}: not a valid constraint line, skipping: ${JSON.stringify(line)}`, strict, warn);
+      continue;
+    }
+    const severity = lm[1].toLowerCase();
+    const explicitId = lm[2] != null ? lm[2].trim() : null;
+    const cText = lm[3].trim();
+    if (cText === '') {
+      emit(`line ${lineNo}: constraint text is empty, skipping`, strict, warn);
+      continue;
+    }
+    if (explicitId === '') {
+      emit(`line ${lineNo}: explicit id is empty, skipping`, strict, warn);
+      continue;
+    }
+    items.push({ line: lineNo, severity, explicitId, text: cText });
+  }
+
+  if (fence != null) {
+    // Unterminated block: treat trailing lines as content (already collected)
+    // and note it — never crash, even under --strict.
+    warn(`unterminated \`constraints\` block opened at line ${openLine}; treated lines to end of file as content`);
+  }
+
+  return items;
+}
+
+// True when `raw` closes a fence opened by `openFence` (same fence char, length
+// at least the opening fence, nothing but the fence char and trailing space).
+function isClosingFence(raw, openFence) {
+  const re = openFence[0] === '`' ? /^(`{3,})[ \t]*$/ : /^(~{3,})[ \t]*$/;
+  const m = raw.match(re);
+  return m != null && m[1].length >= openFence.length;
+}
+
+// Deterministic id from text: lowercase, non-alphanumeric runs to `-`, trimmed,
+// capped at 40 chars. May return '' for all-punctuation text (caller falls back).
+function slug(text) {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 40)
+    .replace(/-+$/g, '');
+}
+
+// Report a problem: throw under strict, otherwise warn and carry on.
+function emit(msg, strict, warn) {
+  if (strict) throw new Error(msg);
+  warn(msg);
+}
