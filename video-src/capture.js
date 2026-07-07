@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer-core');
 const path = require('path');
 
 const CHROME = '/Users/abhijitdas/.cache/puppeteer/chrome/mac_arm-143.0.7499.169/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing';
-const FPS = 30, DUR = 27, N = FPS * DUR;
+const FPS = 30, DUR = 63, N = FPS * DUR;
 const FILE = 'file://' + path.resolve(__dirname, 'launch-video.html');
 
 (async () => {

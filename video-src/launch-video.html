@@ -3,76 +3,62 @@
 <head>
 <meta charset="utf-8">
 <style>
-  html,body { margin:0; padding:0; }
-  #stage {
-    position:relative; width:1920px; height:1080px; overflow:hidden;
-    background:radial-gradient(1200px 700px at 50% 38%, #121826 0%, #0b0e14 62%, #080a10 100%);
-    font-family:"Helvetica Neue", Arial, sans-serif; color:#e7ebf2;
-  }
-  #stage::after { /* subtle top hairline accent */
-    content:""; position:absolute; left:0; top:0; width:100%; height:5px;
-    background:linear-gradient(90deg,#34d399,#4fd1c5,#4fd1c5); opacity:.9;
-  }
-  .scene { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; will-change:opacity, transform; }
-  .col { display:flex; flex-direction:column; align-items:center; text-align:center; }
-  .mono { font-family:"Menlo", monospace; }
-  .teal { color:#4fd1c5; } .green { color:#34d399; } .rose { color:#fb7185; } .amber { color:#fbbf24; }
-  .muted { color:#8891a3; } .faint { color:#5a6273; }
-
-  /* brand */
-  .dot { width:34px; height:34px; border-radius:10px; background:#4fd1c5; box-shadow:0 0 0 8px rgba(79,209,197,.16); }
-  .wordmark { font-size:76px; font-weight:800; letter-spacing:-2px; }
-  .tagline { font-size:34px; color:#8891a3; margin-top:26px; letter-spacing:-.3px; }
-
-  .caption { position:absolute; left:0; right:0; bottom:96px; text-align:center; font-size:34px; color:#c3cad6; letter-spacing:-.3px; }
-  .caption b { color:#e7ebf2; }
-  .kicker { font-size:22px; letter-spacing:5px; text-transform:uppercase; color:#5a6273; }
-
-  /* context window card */
-  .card { width:760px; background:#121724; border:1px solid #232c3d; border-radius:24px; padding:26px 26px 30px; box-shadow:0 50px 120px -40px rgba(0,0,0,.7); }
-  .card-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
-  .card-title { font-family:Menlo,monospace; font-size:20px; color:#8891a3; }
-  .status { font-family:Menlo,monospace; font-size:18px; font-weight:700; padding:6px 14px; border-radius:9px; background:#0e1320; color:#8891a3; }
-  .cap { height:9px; border-radius:6px; background:#0e1320; overflow:hidden; margin-bottom:18px; }
-  .cap > i { display:block; height:100%; width:20%; background:#34d399; }
-  .blk { border-radius:13px; padding:15px 18px; font-family:Menlo,monospace; font-size:21px; border:1px solid #232c3d; background:#0e1320; margin-bottom:11px; color:#aeb6c4; }
-  .blk.cons { border-color:#2b5c56; background:#0f1a1c; }
-  .blk.cons .tag { font-size:15px; letter-spacing:2px; color:#4fd1c5; margin-bottom:10px; font-weight:700; }
-  .blk.cons .line { line-height:2.0; color:#cdd3dc; }
-  .sev { font-size:15px; font-weight:700; padding:2px 9px; border-radius:6px; margin-right:8px; }
-  .sev.must { background:rgba(251,113,133,.16); color:#fb7185; }
-  .sev.should { background:rgba(251,191,36,.18); color:#fbbf24; }
-
-  /* stat */
-  .bignum { font-family:Menlo,monospace; font-weight:800; letter-spacing:-4px; line-height:1; }
-  .chip { display:inline-flex; align-items:center; gap:10px; font-family:Menlo,monospace; font-size:30px; padding:16px 26px; border-radius:14px;
-    border:1px solid #232c3d; background:#121724; margin:9px; color:#cdd3dc; }
-  .chip .d { width:12px; height:12px; border-radius:50%; background:#4fd1c5; }
-
-  .cta-cmd { font-family:Menlo,monospace; font-size:58px; font-weight:700; }
-  .cta-url { font-size:34px; color:#8891a3; margin-top:22px; letter-spacing:.4px; }
+  html,body{margin:0;padding:0;}
+  #stage{position:relative;width:1920px;height:1080px;overflow:hidden;
+    background:radial-gradient(1200px 700px at 50% 38%,#121826 0%,#0b0e14 62%,#080a10 100%);
+    font-family:"Helvetica Neue",Arial,sans-serif;color:#e7ebf2;}
+  #stage::after{content:"";position:absolute;left:0;top:0;width:100%;height:5px;background:linear-gradient(90deg,#34d399,#4fd1c5,#4fd1c5);opacity:.9;}
+  .scene{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;will-change:opacity,transform;}
+  .col{display:flex;flex-direction:column;align-items:center;text-align:center;}
+  .mono{font-family:"Menlo",monospace;}
+  .teal{color:#4fd1c5;}.green{color:#34d399;}.rose{color:#fb7185;}.amber{color:#fbbf24;}.muted{color:#8891a3;}.faint{color:#5a6273;}
+  .dot{width:34px;height:34px;border-radius:10px;background:#4fd1c5;box-shadow:0 0 0 8px rgba(79,209,197,.16);}
+  .wordmark{font-size:76px;font-weight:800;letter-spacing:-2px;}
+  .tagline{font-size:34px;color:#8891a3;margin-top:26px;letter-spacing:-.3px;}
+  .big{font-size:62px;font-weight:800;letter-spacing:-1.5px;line-height:1.18;max-width:1300px;}
+  .caption{position:absolute;left:0;right:0;bottom:96px;text-align:center;font-size:34px;color:#c3cad6;letter-spacing:-.3px;}
+  .caption b{color:#e7ebf2;}
+  .kicker{font-size:22px;letter-spacing:5px;text-transform:uppercase;color:#5a6273;}
+  .card{width:780px;background:#121724;border:1px solid #232c3d;border-radius:24px;padding:26px 26px 30px;box-shadow:0 50px 120px -40px rgba(0,0,0,.7);}
+  .card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+  .card-title{font-family:Menlo,monospace;font-size:20px;color:#8891a3;}
+  .status{font-family:Menlo,monospace;font-size:18px;font-weight:700;padding:6px 14px;border-radius:9px;background:#0e1320;color:#8891a3;}
+  .cap{height:9px;border-radius:6px;background:#0e1320;overflow:hidden;margin-bottom:18px;}
+  .cap>i{display:block;height:100%;width:20%;background:#34d399;}
+  .blk{border-radius:13px;padding:15px 18px;font-family:Menlo,monospace;font-size:21px;border:1px solid #232c3d;background:#0e1320;margin-bottom:11px;color:#aeb6c4;}
+  .blk.cons{border-color:#2b5c56;background:#0f1a1c;}
+  .blk.cons .tag{font-size:15px;letter-spacing:2px;color:#4fd1c5;margin-bottom:10px;font-weight:700;}
+  .blk.cons .line{line-height:2.0;color:#cdd3dc;}
+  .sev{font-size:15px;font-weight:700;padding:2px 9px;border-radius:6px;margin-right:8px;}
+  .sev.must{background:rgba(251,113,133,.16);color:#fb7185;}
+  .sev.should{background:rgba(251,191,36,.18);color:#fbbf24;}
+  .bignum{font-family:Menlo,monospace;font-weight:800;letter-spacing:-4px;line-height:1;}
+  .chip{display:inline-flex;align-items:center;gap:10px;font-family:Menlo,monospace;font-size:30px;padding:16px 26px;border-radius:14px;border:1px solid #232c3d;background:#121724;margin:9px;color:#cdd3dc;}
+  .chip .d{width:12px;height:12px;border-radius:50%;background:#4fd1c5;}
+  .cta-cmd{font-family:Menlo,monospace;font-size:58px;font-weight:700;}
+  .cta-url{font-size:34px;color:#8891a3;margin-top:22px;letter-spacing:.4px;}
+  /* terminal */
+  .term{width:1120px;background:#0c111b;border:1px solid #232c3d;border-radius:18px;box-shadow:0 50px 120px -40px rgba(0,0,0,.75);overflow:hidden;font-family:Menlo,monospace;}
+  .term-bar{display:flex;align-items:center;gap:9px;padding:16px 20px;background:#0e1320;border-bottom:1px solid #202839;}
+  .term-bar i{width:13px;height:13px;border-radius:50%;display:block;}
+  .term-body{padding:26px 30px;font-size:25px;line-height:1.85;min-height:470px;}
+  .term-body .cmd{color:#e7ebf2;}.term-body .out{color:#8891a3;}.term-body .p{color:#4fd1c5;}
 </style>
 </head>
 <body>
 <div id="stage">
-  <!-- S1 intro -->
-  <div class="scene" id="s1">
-    <div class="col">
-      <div style="display:flex; align-items:center; gap:24px;">
-        <div class="dot" id="s1dot"></div>
-        <div class="wordmark" id="s1word">constraintguard</div>
-      </div>
-      <div class="tagline" id="s1tag">Keep your agent’s rules alive across compaction.</div>
-    </div>
-  </div>
+  <div class="scene" id="s1"><div class="col">
+    <div style="display:flex;align-items:center;gap:24px;"><div class="dot" id="s1dot"></div><div class="wordmark" id="s1word">constraintguard</div></div>
+    <div class="tagline" id="s1tag">Keep your agent’s rules alive across compaction.</div>
+  </div></div>
 
-  <!-- S2/S3 card (declare → fill → compaction → rot) -->
-  <div class="scene" id="s2">
+  <div class="scene" id="s2"><div class="col"><div class="big" id="s2t">What happens to your agent’s rules<br>when the context window runs out?</div></div></div>
+
+  <div class="scene" id="s3">
     <div class="card" id="card">
       <div class="card-head"><div class="card-title">agent context window</div><div class="status" id="st">rules declared ✓</div></div>
       <div class="cap"><i id="cap"></i></div>
-      <div class="blk cons" id="cons">
-        <div class="tag" id="constag">CONSTRAINTS</div>
+      <div class="blk cons" id="cons"><div class="tag" id="constag">CONSTRAINTS</div>
         <div class="line"><span class="sev must">must</span> never delete production data</div>
         <div class="line"><span class="sev must">must</span> sign-off before schema change</div>
         <div class="line"><span class="sev should">should</span> prefer small, reviewable PRs</div>
@@ -82,61 +68,71 @@
       <div class="blk" id="m2">tool · ran schema diff (142 rows)</div>
       <div class="blk" id="sum" style="border-color:#33405a;">summary · planning a DB migration; drafted SQL; moving fast</div>
     </div>
-    <div class="caption" id="cap2"></div>
+    <div class="caption" id="cap3"></div>
   </div>
 
-  <!-- S4 stat -->
-  <div class="scene" id="s4">
-    <div class="col">
-      <div class="kicker" style="margin-bottom:36px;">constraint violations after compaction</div>
-      <div style="display:flex; align-items:baseline; gap:44px;">
-        <div class="bignum green" style="font-size:150px;">0%</div>
-        <div class="faint" style="font-size:90px;">→</div>
-        <div class="bignum rose" id="statnum" style="font-size:240px;">0%</div>
-      </div>
-      <div class="muted" style="font-size:30px; margin-top:44px;">arXiv:2606.22528 · <span style="color:#c3cad6;">Governance Decay</span> · 1,323 episodes · 7 model families</div>
-    </div>
-  </div>
+  <div class="scene" id="s6"><div class="col">
+    <div class="blk" style="width:820px;font-size:27px;border-color:#7a2c38;background:#1a0f12;color:#fb7185;" id="s6a">✕ agent runs:  DROP TABLE production_orders;</div>
+    <div class="caption" id="cap6" style="position:static;margin-top:52px;">Nothing errored. The forbidden rule simply <b class="rose">wasn’t there anymore.</b></div>
+  </div></div>
 
-  <!-- S5 fix -->
-  <div class="scene" id="s5">
-    <div class="col">
-      <div class="blk cons" id="fixcard" style="width:640px; font-size:23px; border-color:#2b7a5e; background:#0f1c18; box-shadow:0 0 0 6px rgba(52,211,153,.14);">
-        <div class="tag" style="color:#34d399;">CONSTRAINTS · PINNED ✓</div>
-        <div class="line"><span class="sev must">must</span> never delete production data</div>
-        <div class="line"><span class="sev must">must</span> sign-off before schema change</div>
-        <div class="line"><span class="sev should">should</span> prefer small, reviewable PRs</div>
-      </div>
-      <div class="caption" id="cap5" style="position:static; margin-top:60px;">constraintguard extracts them <b>before</b> compaction, pins them back <b>after</b> — violations return to <b class="green">0%</b>.</div>
+  <div class="scene" id="s7"><div class="col">
+    <div class="kicker" style="margin-bottom:36px;">constraint violations after compaction</div>
+    <div style="display:flex;align-items:baseline;gap:44px;">
+      <div class="bignum green" style="font-size:150px;">0%</div><div class="faint" style="font-size:90px;">→</div><div class="bignum rose" id="statnum" style="font-size:230px;">0%</div>
     </div>
-  </div>
+    <div class="muted" style="font-size:29px;margin-top:40px;">rule survives the summary → <span class="green">0%</span> &nbsp;·&nbsp; rule dropped → <span class="rose">38%</span></div>
+    <div class="muted" style="font-size:27px;margin-top:16px;">arXiv:2606.22528 · <span style="color:#c3cad6;">Governance Decay</span> · 1,323 episodes · 7 model families</div>
+  </div></div>
 
-  <!-- S6 features -->
-  <div class="scene" id="s6">
-    <div class="col" style="max-width:1300px;">
-      <div class="kicker" style="margin-bottom:40px;">four commands · three adapters · one hook · zero dependencies</div>
-      <div style="display:flex; flex-wrap:wrap; justify-content:center; max-width:1200px;">
-        <div class="chip f"><span class="d"></span>cg&nbsp;extract</div>
-        <div class="chip f"><span class="d"></span>cg&nbsp;pin</div>
-        <div class="chip f"><span class="d"></span>cg&nbsp;conformance</div>
-        <div class="chip f"><span class="d"></span>claude&nbsp;·&nbsp;codex&nbsp;·&nbsp;cursor</div>
-        <div class="chip f"><span class="d"></span>auto-pin&nbsp;hook</div>
-        <div class="chip f"><span class="d"></span>0&nbsp;dependencies</div>
-      </div>
-    </div>
-  </div>
+  <div class="scene" id="s8"><div class="col">
+    <div class="kicker" style="margin-bottom:30px;">the fix</div>
+    <div class="big" id="s8t">Extract the rules <span class="teal">before</span> compaction.<br>Pin them back <span class="teal">after.</span></div>
+  </div></div>
 
-  <!-- S7 CTA -->
-  <div class="scene" id="s7">
-    <div class="col">
-      <div style="display:flex; align-items:center; gap:20px; margin-bottom:44px;">
-        <div class="dot" style="width:26px; height:26px; border-radius:8px;"></div>
-        <div style="font-size:44px; font-weight:800; letter-spacing:-1px;">constraintguard</div>
-      </div>
-      <div class="cta-cmd"><span class="faint">$</span> <span class="teal">npx constraintguard</span></div>
-      <div class="cta-url">constraintguard.vercel.app</div>
+  <div class="scene" id="s9"><div class="col">
+    <div class="blk cons" id="fixcard" style="width:680px;font-size:23px;border-color:#2b7a5e;background:#0f1c18;box-shadow:0 0 0 6px rgba(52,211,153,.14);">
+      <div class="tag" style="color:#34d399;">CONSTRAINTS · PINNED ✓</div>
+      <div class="line"><span class="sev must">must</span> never delete production data</div>
+      <div class="line"><span class="sev must">must</span> sign-off before schema change</div>
+      <div class="line"><span class="sev should">should</span> prefer small, reviewable PRs</div>
     </div>
-  </div>
+    <div class="caption" id="cap9" style="position:static;margin-top:56px;">The rules survive the summary — violations return to <b class="green">0%</b>.</div>
+  </div></div>
+
+  <div class="scene" id="s10"><div class="col"><div class="term">
+    <div class="term-bar"><i style="background:#fb7185"></i><i style="background:#fbbf24"></i><i style="background:#34d399"></i><span class="faint" style="margin-left:12px;font-size:18px;">constraintguard</span></div>
+    <div class="term-body">
+      <div id="t1"><span class="p">$</span> <span class="cmd">cg extract session.md</span></div>
+      <div id="t2" class="out">→ 4 constraints  [no-delete, signoff, small-prs, cite]</div>
+      <div id="t3" style="margin-top:14px;"><span class="p">$</span> <span class="cmd">cg conformance before.md after.md</span></div>
+      <div id="t4" class="out">→ retention <span class="rose">54%</span>   6 survived · <span class="rose">5 dropped</span></div>
+      <div id="t5" style="margin-top:14px;"><span class="p">$</span> <span class="cmd">cg pin constraints.json after.md</span></div>
+      <div id="t6" class="out">→ re-pinned · re-check retention <span class="green">100%</span> ✓</div>
+    </div>
+  </div></div></div>
+
+  <div class="scene" id="s11"><div class="col" style="max-width:1360px;">
+    <div class="kicker" style="margin-bottom:40px;">four commands · three adapters · one hook · zero dependencies</div>
+    <div style="display:flex;flex-wrap:wrap;justify-content:center;max-width:1240px;">
+      <div class="chip f"><span class="d"></span>cg&nbsp;extract</div>
+      <div class="chip f"><span class="d"></span>cg&nbsp;pin</div>
+      <div class="chip f"><span class="d"></span>cg&nbsp;conformance</div>
+      <div class="chip f"><span class="d"></span>claude&nbsp;·&nbsp;codex&nbsp;·&nbsp;cursor</div>
+      <div class="chip f"><span class="d"></span>auto-pin&nbsp;hook</div>
+      <div class="chip f"><span class="d"></span>reproduces&nbsp;the&nbsp;benchmark</div>
+      <div class="chip f"><span class="d"></span>164&nbsp;tests</div>
+      <div class="chip f"><span class="d"></span>0&nbsp;dependencies&nbsp;·&nbsp;MIT</div>
+    </div>
+  </div></div>
+
+  <div class="scene" id="s12"><div class="col"><div class="big" id="s12t" style="max-width:1200px;">Built &amp; shipped end-to-end by an<br><span class="teal">autonomous agent factory.</span></div></div></div>
+
+  <div class="scene" id="s13"><div class="col">
+    <div style="display:flex;align-items:center;gap:20px;margin-bottom:44px;"><div class="dot" style="width:26px;height:26px;border-radius:8px;"></div><div style="font-size:44px;font-weight:800;letter-spacing:-1px;">constraintguard</div></div>
+    <div class="cta-cmd"><span class="faint">$</span> <span class="teal">npx constraintguard</span></div>
+    <div class="cta-url">constraintguard.vercel.app</div>
+  </div></div>
 </div>
 
 <script>
@@ -144,97 +140,65 @@ const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
 const easeOut=t=>1-Math.pow(1-clamp(t),3);
 const easeInOut=t=>{t=clamp(t);return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;};
 const lerp=(a,b,t)=>a+(b-a)*clamp(t);
-// opacity envelope with eased in/out
-function env(t,a,b,fi=0.55,fo=0.55){ if(t<=a||t>=b) return 0; return Math.min(easeOut((t-a)/fi), easeOut((b-t)/fo)); }
+function env(t,a,b,fi=0.6,fo=0.55){if(t<=a||t>=b)return 0;return Math.min(easeOut((t-a)/fi),easeOut((b-t)/fo));}
 const $=id=>document.getElementById(id);
-function set(el,o,ty=0,s=1){ el.style.opacity=o; el.style.transform=`translateY(${ty}px) scale(${s})`; }
+function rise(el,at,lt,d=0.6,dist=16){el.style.opacity=easeOut((lt-at)/d);el.style.transform=`translateY(${lerp(dist,0,easeOut((lt-at)/(d+.1)))}px)`;}
 
-// scene windows
-const S1=[0.0,3.7], S2=[3.5,12.3], S4=[12.1,16.7], S5=[16.5,21.3], S6=[21.1,24.1], S7=[23.9,27.0];
+const W={s1:[0.0,4.6],s2:[4.4,8.9],s3:[8.7,18.9],s6:[18.7,24.0],s7:[23.8,30.2],
+  s8:[30.0,34.4],s9:[34.2,39.6],s10:[39.4,48.0],s11:[47.8,53.4],s12:[53.2,57.8],s13:[57.6,62.5]};
 
-window.render = function(t){
-  // hide all scenes, then light the active ones
-  ['s1','s2','s4','s5','s6','s7'].forEach(id=>{ $(id).style.opacity=0; });
+window.render=function(t){
+  Object.keys(W).forEach(id=>{$(id).style.opacity=0;});
 
-  /* S1 intro */
-  { const o=env(t,S1[0],S1[1],0.7,0.6); const s=$('s1'); s.style.opacity=o;
-    const p=easeOut((t-S1[0])/1.0);
-    set($('s1dot'), clamp(p*1.4), 0, lerp(.4,1,p));
+  { $('s1').style.opacity=env(t,...W.s1,0.7,0.6);
+    const p=easeOut(t/1.0); $('s1dot').style.opacity=clamp(p*1.4); $('s1dot').style.transform=`scale(${lerp(.4,1,p)})`;
     $('s1word').style.opacity=clamp((t-0.5)/0.8); $('s1word').style.transform=`translateX(${lerp(-18,0,easeOut((t-0.5)/0.9))}px)`;
-    $('s1tag').style.opacity=clamp((t-1.3)/0.9); $('s1tag').style.transform=`translateY(${lerp(14,0,easeOut((t-1.3)/1.0))}px)`;
-  }
+    $('s1tag').style.opacity=clamp((t-1.3)/0.9); }
 
-  /* S2/S3 card */
-  { const o=env(t,S2[0],S2[1],0.7,0.6); const s=$('s2'); s.style.opacity=o;
-    const lt=t-S2[0];               // local 0..8.8
-    // card entrance
+  { $('s2').style.opacity=env(t,...W.s2); const lt=t-W.s2[0]; $('s2t').style.transform=`translateY(${lerp(14,0,easeOut(lt/1.0))}px)`; }
+
+  /* s3: declare → fill → compaction → rot */
+  { $('s3').style.opacity=env(t,...W.s3,0.7,0.55); const lt=t-W.s3[0];
     $('card').style.transform=`translateY(${lerp(24,0,easeOut(lt/0.9))}px) scale(${lerp(.96,1,easeOut(lt/0.9))})`;
-    // messages appear then (later) disappear
-    const mIn=(el,at)=>{ el.style.opacity=easeOut((lt-at)/0.5); el.style.transform=`translateY(${lerp(10,0,easeOut((lt-at)/0.6))}px)`; };
-    mIn($('m0'),0.5); mIn($('m1'),1.0); mIn($('m2'),1.5);
-    // capacity fill 20%->98% between lt .4 and 3.4
-    let capW=lerp(20,98,easeInOut((lt-0.4)/3.0));
-    // compaction moment ~ lt 3.6 : messages collapse, summary in, constraints rot, cap drops
-    const comp=clamp((lt-3.6)/1.3);          // 0..1 compaction progress
-    [$('m0'),$('m1'),$('m2')].forEach(el=>{ el.style.opacity=Math.min(+el.style.opacity||0, 1-easeInOut(comp)); });
-    $('sum').style.opacity=easeOut((lt-3.9)/0.8);
-    $('sum').style.transform=`translateY(${lerp(10,0,easeOut((lt-3.9)/0.9))}px)`;
-    if(comp>0){ capW=lerp(98,34,easeInOut(comp)); }
-    $('cap').style.width=capW+'%';
-    $('cap').style.background = capW>85?'#fb7185':capW>55?'#fbbf24':'#34d399';
-    // constraints rot
-    const rot=comp;
-    $('cons').style.opacity=lerp(1,0.42,rot);
-    $('cons').style.borderColor=rot>.3?'#7a2c38':'#2b5c56';
-    $('cons').style.background=rot>.3?'#1a0f12':'#0f1a1c';
+    rise($('m0'),0.6,lt,0.5); rise($('m1'),1.3,lt,0.5); rise($('m2'),2.0,lt,0.5);
+    let capW=lerp(20,98,easeInOut((lt-0.5)/4.2));
+    const comp=clamp((lt-5.2)/1.5);
+    [$('m0'),$('m1'),$('m2')].forEach(el=>{el.style.opacity=Math.min(+el.style.opacity||0,1-easeInOut(comp));});
+    $('sum').style.opacity=easeOut((lt-5.6)/0.9); $('sum').style.transform=`translateY(${lerp(10,0,easeOut((lt-5.6)/1.0))}px)`;
+    if(comp>0)capW=lerp(98,34,easeInOut(comp));
+    $('cap').style.width=capW+'%'; $('cap').style.background=capW>85?'#fb7185':capW>55?'#fbbf24':'#34d399';
+    const rot=comp; $('cons').style.opacity=lerp(1,0.42,rot);
+    $('cons').style.borderColor=rot>.3?'#7a2c38':'#2b5c56'; $('cons').style.background=rot>.3?'#1a0f12':'#0f1a1c';
     $('cons').style.transform=`translateX(${lerp(0,10,rot)}px)`;
-    $('constag').textContent = rot>.5? 'CONSTRAINTS · DROPPED' : 'CONSTRAINTS';
-    $('constag').style.color = rot>.5? '#fb7185' : '#4fd1c5';
-    $('cons').querySelectorAll('.line').forEach(l=>{ l.style.textDecoration = rot>.5?'line-through':'none'; l.style.textDecorationColor='#fb7185'; });
-    // status
-    let stTxt='rules declared ✓', stCol='#34d399';
-    if(lt>1.6){ stTxt='filling…'; stCol='#fbbf24'; }
-    if(capW>90 && comp===0){ stTxt='window full ⚠'; stCol='#fb7185'; }
-    if(comp>0.3){ stTxt='compacted — rules lost'; stCol='#fb7185'; }
+    $('constag').textContent=rot>.5?'CONSTRAINTS · DROPPED':'CONSTRAINTS'; $('constag').style.color=rot>.5?'#fb7185':'#4fd1c5';
+    $('cons').querySelectorAll('.line').forEach(l=>{l.style.textDecoration=rot>.5?'line-through':'none';l.style.textDecorationColor='#fb7185';});
+    let stTxt='rules declared ✓',stCol='#34d399';
+    if(lt>2.2){stTxt='filling…';stCol='#fbbf24';} if(capW>90&&comp===0){stTxt='window full ⚠';stCol='#fb7185';} if(comp>0.3){stTxt='compacted — rules lost';stCol='#fb7185';}
     $('st').textContent=stTxt; $('st').style.color=stCol;
-    // caption
     let cp='<span class="muted">You declare the rules. While visible, the agent obeys them.</span>';
-    if(lt>2.0) cp='<span class="muted">Turn after turn, the context window fills toward its limit.</span>';
-    if(comp>0.25) cp='Compaction keeps the gist — and <b class="rose">silently drops the rules.</b>';
-    $('cap2').innerHTML=cp; $('cap2').style.opacity=env(t,S2[0]+0.4,S2[1],0.6,0.5);
-  }
+    if(lt>2.6)cp='<span class="muted">Turn after turn, the context window fills toward its limit.</span>';
+    if(comp>0.25)cp='Compaction keeps the gist — and <b class="rose">silently drops the rules.</b>';
+    $('cap3').innerHTML=cp; $('cap3').style.opacity=env(t,W.s3[0]+0.5,W.s3[1],0.6,0.5); }
 
-  /* S4 stat */
-  { const o=env(t,S4[0],S4[1],0.6,0.55); $('s4').style.opacity=o;
-    const lt=t-S4[0];
-    const v=Math.round(lerp(0,59,easeOut((lt-0.4)/1.9)));
-    $('statnum').textContent=v+'%';
-    $('statnum').style.transform=`scale(${lerp(.9,1,easeOut((lt-0.3)/0.8))})`;
-  }
+  { $('s6').style.opacity=env(t,...W.s6); const lt=t-W.s6[0]; $('s6a').style.opacity=easeOut((lt-0.2)/0.6); $('s6a').style.transform=`scale(${lerp(.97,1,easeOut((lt-0.2)/0.7))})`; $('cap6').style.opacity=easeOut((lt-1.1)/0.8); }
 
-  /* S5 fix */
-  { const o=env(t,S5[0],S5[1],0.6,0.55); $('s5').style.opacity=o;
-    const lt=t-S5[0];
-    const p=easeOut((lt-0.2)/0.9);
-    $('fixcard').style.transform=`translateX(${lerp(60,0,p)}px)`;
-    $('fixcard').style.opacity=clamp(p*1.2);
-    $('cap5').style.opacity=easeOut((lt-1.1)/0.9);
-  }
+  { $('s7').style.opacity=env(t,...W.s7); const lt=t-W.s7[0]; const v=Math.round(lerp(0,59,easeOut((lt-0.4)/2.0))); $('statnum').textContent=v+'%'; $('statnum').style.transform=`scale(${lerp(.9,1,easeOut((lt-0.3)/0.8))})`; }
 
-  /* S6 features */
-  { const o=env(t,S6[0],S6[1],0.55,0.5); $('s6').style.opacity=o;
-    const lt=t-S6[0];
-    document.querySelectorAll('#s6 .chip.f').forEach((c,i)=>{
-      const at=0.35+i*0.16; c.style.opacity=easeOut((lt-at)/0.5);
-      c.style.transform=`translateY(${lerp(16,0,easeOut((lt-at)/0.6))}px)`;
-    });
-  }
+  { $('s8').style.opacity=env(t,...W.s8); const lt=t-W.s8[0]; $('s8t').style.transform=`translateY(${lerp(12,0,easeOut(lt/0.9))}px)`; }
 
-  /* S7 cta */
-  { const o=env(t,S7[0],S7[1],0.7,0.4); $('s7').style.opacity=o;
-    const lt=t-S7[0];
-    $('s7').querySelector('.col').style.transform=`translateY(${lerp(14,0,easeOut(lt/1.0))}px)`;
-  }
+  { $('s9').style.opacity=env(t,...W.s9); const lt=t-W.s9[0]; const p=easeOut((lt-0.2)/0.9); $('fixcard').style.transform=`translateX(${lerp(60,0,p)}px)`; $('fixcard').style.opacity=clamp(p*1.2); $('cap9').style.opacity=easeOut((lt-1.1)/0.9); }
+
+  /* s10 terminal typing */
+  { $('s10').style.opacity=env(t,...W.s10,0.6,0.5); const lt=t-W.s10[0];
+    const show=(el,at)=>{$(el).style.opacity=easeOut((lt-at)/0.4);};
+    show('t1',0.4);show('t2',1.2);show('t3',2.4);show('t4',3.2);show('t5',4.4);show('t6',5.2); }
+
+  { $('s11').style.opacity=env(t,...W.s11,0.55,0.5); const lt=t-W.s11[0];
+    document.querySelectorAll('#s11 .chip.f').forEach((c,i)=>{const at=0.3+i*0.12;c.style.opacity=easeOut((lt-at)/0.45);c.style.transform=`translateY(${lerp(14,0,easeOut((lt-at)/0.55))}px)`;}); }
+
+  { $('s12').style.opacity=env(t,...W.s12); const lt=t-W.s12[0]; $('s12t').style.transform=`translateY(${lerp(12,0,easeOut(lt/0.9))}px)`; }
+
+  { $('s13').style.opacity=env(t,...W.s13,0.7,0.4); const lt=t-W.s13[0]; $('s13').querySelector('.col').style.transform=`translateY(${lerp(14,0,easeOut(lt/1.0))}px)`; }
 };
 window.render(0);
 </script>
