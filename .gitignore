@@ -2,3 +2,4 @@ node_modules/
 *.log
 .cg-*.json
 .agents/
+_video/
