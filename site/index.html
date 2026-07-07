@@ -78,6 +78,9 @@
   .statband .n { font-size:30px; font-weight:800; letter-spacing:-.03em; font-family:var(--mono); }
   .statband .n.bad { color:var(--drop); } .statband .n.good { color:var(--survive); }
   .statband .k { color:var(--muted); font-size:13.5px; margin-top:3px; }
+  .herovid { margin-top:24px; border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; background:#000; box-shadow:0 34px 90px -46px rgba(0,0,0,.65); }
+  .herovid video { display:block; width:100%; height:auto; }
+  .herovid-cap { text-align:center; color:var(--muted); font-size:13px; margin-top:11px; letter-spacing:.2px; }
   @media (max-width:640px){ .statband { grid-template-columns:1fr; } }
 
   section { padding:56px 0; border-top:1px solid var(--line); }
@@ -288,6 +291,12 @@
       <div class="cell"><div class="n bad">60%</div><div class="k">worst single session — matches the "ConstraintRot" paper's 0→59%</div></div>
       <div class="cell"><div class="n good">0</div><div class="k">dependencies. One file, any harness, 164 tests, MIT.</div></div>
     </div>
+    <div class="herovid">
+      <video controls playsinline preload="metadata" poster="video-poster.jpg">
+        <source src="constraintguard-launch.mp4" type="video/mp4">
+      </video>
+    </div>
+    <div class="herovid-cap">▶ Watch the 60-second intro — sound on.</div>
   </section>
 
   <section id="problem">
