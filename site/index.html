@@ -163,6 +163,39 @@
   details.src[open] > summary .chev { transform:rotate(90deg); }
   details.src pre { margin:0; padding:16px 18px; border-top:1px solid var(--line); background:var(--panel-2); overflow-x:auto; font-family:var(--mono); font-size:12.5px; line-height:1.6; color:var(--ink); }
 
+  /* research */
+  .paper { background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); }
+  .feat-paper { padding:26px 28px; margin-top:26px; border-left:3px solid var(--brand); }
+  .paper-meta { font-family:var(--mono); font-size:12px; color:var(--muted); letter-spacing:.02em; }
+  .paper-meta .arxiv { color:var(--brand); }
+  .paper-title { font-size:clamp(19px,2.6vw,24px); font-weight:800; margin:10px 0 0; line-height:1.25; }
+  .pull { margin:20px 0; padding:2px 0 2px 16px; border-left:2px solid var(--brand); color:var(--ink); font-size:clamp(16px,2vw,18px); line-height:1.5; font-style:italic; }
+  .escal { background:var(--panel-2); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:18px 0; }
+  .escal-row { display:grid; grid-template-columns:210px 1fr 52px; gap:14px; align-items:center; margin-bottom:12px; }
+  @media (max-width:620px){ .escal-row { grid-template-columns:1fr 46px; } .escal-track { grid-column:1 / -1; order:3; } }
+  .escal-lab { font-size:13px; color:var(--muted); }
+  .escal-track { height:14px; background:var(--panel); border:1px solid var(--line); border-radius:7px; overflow:hidden; }
+  .escal-track > i { display:block; height:100%; width:0; transition:width 1.1s cubic-bezier(.2,.8,.2,1); }
+  .escal-n { font-family:var(--mono); font-weight:800; font-size:18px; text-align:right; font-variant-numeric:tabular-nums; }
+  .escal-cap { font-size:12.5px; color:var(--muted); margin-top:8px; line-height:1.55; }
+  .paper-connect { background:color-mix(in srgb,var(--brand) 9%,var(--panel-2)); border:1px solid color-mix(in srgb,var(--brand) 30%,var(--line)); border-radius:12px; padding:16px 18px; margin:8px 0 18px; font-size:15px; line-height:1.55; }
+  .pc-badge { font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--brand); margin-bottom:6px; font-weight:700; }
+  .papers-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:14px; }
+  @media (max-width:680px){ .papers-grid { grid-template-columns:1fr; } }
+  .mini-paper { display:block; padding:18px; transition:.15s; }
+  .mini-paper:hover { border-color:var(--brand); text-decoration:none; transform:translateY(-2px); }
+  .mini-paper h4 { font-size:15.5px; margin:9px 0 7px; color:var(--ink); line-height:1.3; }
+  .mini-paper p { margin:0; font-size:13px; color:var(--muted); line-height:1.5; }
+
+  /* quickstart */
+  .qs { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:28px; }
+  @media (max-width:760px){ .qs { grid-template-columns:1fr; } }
+  .qs .card { background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:18px; display:flex; flex-direction:column; }
+  .qs .card h4 { font-size:15px; margin:0 0 4px; }
+  .qs .card .cap { color:var(--muted); font-size:13px; margin:0 0 12px; line-height:1.5; flex:1; }
+  .qs pre { background:var(--panel-2); border:1px solid var(--line); border-radius:9px; padding:12px; margin:0; overflow-x:auto; font-family:var(--mono); font-size:12.5px; line-height:1.6; color:var(--ink); }
+  .qs pre .c { color:var(--faint); }
+
   footer { border-top:1px solid var(--line); padding:40px 0 60px; color:var(--muted); font-size:14px; }
   footer .row { display:flex; flex-wrap:wrap; gap:18px; align-items:center; }
   footer .sp { flex:1; }
@@ -175,6 +208,7 @@
     <span class="brand"><span class="dot"></span> constraintguard</span>
     <span class="sp"></span>
     <a class="lnk hideM" href="#problem">Problem</a>
+    <a class="lnk hideM" href="#research">Research</a>
     <a class="lnk" href="#playground">Playground</a>
     <a class="lnk hideM" href="#built">How it's built</a>
     <a class="lnk" href="https://github.com/abhid1234/constraintguard" target="_blank" rel="noopener">GitHub</a>
@@ -202,7 +236,7 @@
   <section id="problem">
     <div class="kicker">The problem — "ConstraintRot"</div>
     <h2 class="sec">Compaction is lossy, and constraints are the first casualty.</h2>
-    <p class="sub">To fit a growing conversation into a fixed context window, agents summarize their own history. That summary keeps the gist — and quietly drops the rules. The research (<a href="https://github.com/abhid1234/constraintguard" target="_blank" rel="noopener">arXiv 2606.22528</a>) measured violation rates climbing from 0% to as high as 59% after a compaction. constraintguard reproduces it, then fixes it.</p>
+    <p class="sub">To fit a growing conversation into a fixed context window, agents summarize their own history. That summary keeps the gist — and quietly drops the rules. The research (<a href="https://arxiv.org/abs/2606.22528" target="_blank" rel="noopener">arXiv:2606.22528</a>) measured violation rates climbing from 0% to as high as 59% after a compaction. constraintguard reproduces it, then fixes it — <a href="#research">see the evidence ↓</a></p>
     <div class="ba">
       <div class="box">
         <h4>Before compaction — you declared</h4>
@@ -223,6 +257,46 @@
           <div class="li gone"><span class="sev should">should</span> cite a source for every claim</div>
         </div>
       </div>
+    </div>
+  </section>
+
+  <section id="research">
+    <div class="kicker">The evidence — peer-reviewed</div>
+    <h2 class="sec">This isn't a hunch. It's measured.</h2>
+    <p class="sub">The failure has a name in the literature — <em>Governance Decay</em> — a benchmark, and a proposed fix. Before you reach for the solution, here's the problem straight from the research.</p>
+
+    <article class="paper feat-paper">
+      <div class="paper-meta"><span class="arxiv">arXiv:2606.22528</span> · June 2026 · Shiyang Chen</div>
+      <h3 class="paper-title">Governance Decay: How Context Compaction Silently Erases Safety Constraints in Long-Horizon LLM Agents</h3>
+      <blockquote class="pull">"In-context governance constraints that agents reliably obey while visible can be silently removed by compaction, causing the same agent to perform prohibited tool actions later in the session."</blockquote>
+
+      <div class="escal" id="escal">
+        <div class="escal-row"><div class="escal-lab">Policy in full context</div><div class="escal-track"><i data-w="0" style="background:var(--survive)"></i></div><div class="escal-n" data-count="0">0%</div></div>
+        <div class="escal-row"><div class="escal-lab">After compaction — average</div><div class="escal-track"><i data-w="30" style="background:var(--amber)"></i></div><div class="escal-n" data-count="30">30%</div></div>
+        <div class="escal-row"><div class="escal-lab">After compaction — worst model</div><div class="escal-track"><i data-w="59" style="background:var(--drop)"></i></div><div class="escal-n" data-count="59">59%</div></div>
+        <div class="escal-cap">Constraint-violation rate across <b>1,323 episodes</b> · <b>7 model families</b>. When a constraint <b>survives</b> the summary, violations stay at 0% — when it's <b>dropped</b>, they jump to 38%. The problem is entirely about what compaction keeps.</div>
+      </div>
+
+      <div class="paper-connect">
+        <div class="pc-badge">✦ Why this tool exists</div>
+        The paper's own proposed mitigation is called <b>Constraint Pinning</b> — a training-free method that quarantines governance constraints from lossy compaction and <b>restores violation to 0%</b>. constraintguard is an open-source implementation of exactly that.
+      </div>
+
+      <a class="btn ghost paper-link" href="https://arxiv.org/abs/2606.22528" target="_blank" rel="noopener">Read the paper on arXiv →</a>
+    </article>
+
+    <div class="kicker" style="margin-top:34px;">Corroborating &amp; foundational</div>
+    <div class="papers-grid">
+      <a class="paper mini-paper" href="https://arxiv.org/abs/2605.06445" target="_blank" rel="noopener">
+        <div class="paper-meta"><span class="arxiv">arXiv:2605.06445</span> · Dente, Satriani &amp; Papotti · May 2026</div>
+        <h4>Constraint Decay: The Fragility of LLM Agents in Backend Code Generation</h4>
+        <p>Capable agents lose ~30 points of assertion pass-rate as structural requirements accumulate — reliability degrades exactly as the constraints pile up.</p>
+      </a>
+      <a class="paper mini-paper" href="https://arxiv.org/abs/2307.03172" target="_blank" rel="noopener">
+        <div class="paper-meta"><span class="arxiv">arXiv:2307.03172</span> · Liu et al. · Stanford &amp; collaborators</div>
+        <h4>Lost in the Middle: How Language Models Use Long Contexts</h4>
+        <p>The foundational result: models use information at the <em>start and end</em> of a long context far better than the middle — so buried rules are the first to go unheeded.</p>
+      </a>
     </div>
   </section>
 
@@ -323,6 +397,39 @@
           <div class="field"><label>Constraint set <span class="hint">from the scenario</span></label><textarea id="otel-in" spellcheck="false"></textarea></div>
           <div class="field"><label>constraintsToSpanAttributes(set) <a class="mini" id="otel-copy">copy JSON</a></label><div class="out" id="otel-out"></div></div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="quickstart">
+    <div class="kicker">Quickstart — adopt it in a minute</div>
+    <h2 class="sec">Three ways practitioners use it.</h2>
+    <p class="sub">A CLI for one-off checks, a library for your own pipeline, or a hook that closes the loop automatically on every compaction.</p>
+    <div class="qs">
+      <div class="card">
+        <h4>① CLI &amp; CI gate</h4>
+        <p class="cap">Score how many constraints survived a compaction — fail the build below a threshold.</p>
+        <pre><span class="c"># no install needed</span>
+npx constraintguard \
+  conformance old.md new.md \
+  --threshold 0.9 --json</pre>
+      </div>
+      <div class="card">
+        <h4>② Library</h4>
+        <p class="cap">Extract, pin, and score inside your own agent runtime. Zero dependencies, pure ESM.</p>
+        <pre>import { pinConstraints }
+  from 'constraintguard';
+
+<span class="c">// re-inject before the next turn</span>
+ctx = pinConstraints(set, ctx);</pre>
+      </div>
+      <div class="card">
+        <h4>③ Auto-pin hook</h4>
+        <p class="cap">A drop-in Claude Code hook: extract on compaction, re-pin right after. Self-applying.</p>
+        <pre><span class="c">// .claude/settings.json</span>
+"PreCompact": [{ "hooks": [
+  { "command":
+    "cg hook pre-compact" }]}]</pre>
       </div>
     </div>
   </section>
@@ -509,6 +616,32 @@ $('#otel-copy').addEventListener('click', async ()=>{ try { await navigator.clip
 /* ---------- source viewer (fetch the real files) ---------- */
 for (const f of ['extract','conformance','pin','schema']) {
   fetch('./lib/'+f+'.js').then(r=>r.text()).then(t=>{ const el=$('#src-'+f); if(el) el.textContent = t; }).catch(()=>{ const el=$('#src-'+f); if(el) el.textContent='(source unavailable)'; });
+}
+
+/* ---------- count-up + escalation animations ---------- */
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function countUp(el, to, suffix, ms){
+  const start = performance.now();
+  (function tick(t){
+    const p = Math.min(1, (t - start)/ms);
+    el.textContent = Math.round(to * (0.5 - Math.cos(Math.PI*p)/2)) + suffix;
+    if (p < 1) requestAnimationFrame(tick);
+  })(start);
+}
+if (!reduce) document.querySelectorAll('.statband .n').forEach(el => {
+  const m = el.textContent.match(/(\d+)(%?)/); if (m) countUp(el, +m[1], m[2], 950);
+});
+const escal = document.getElementById('escal');
+if (escal) {
+  const reveal = () => { escal.querySelectorAll('.escal-track > i').forEach(i => i.style.width = (i.dataset.w||0)+'%'); };
+  if (reduce) { reveal(); }
+  else {
+    const io = new IntersectionObserver((ents) => ents.forEach(e => {
+      if (!e.isIntersecting) return;
+      reveal(); escal.querySelectorAll('.escal-n').forEach(n => countUp(n, +n.dataset.count, '%', 1100)); io.disconnect();
+    }), { threshold:.4 });
+    io.observe(escal);
+  }
 }
 
 /* init */
