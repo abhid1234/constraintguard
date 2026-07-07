@@ -38,7 +38,7 @@
   <!-- npx -->
   <g transform="translate(72,566)" font-family="Menlo, monospace">
     <text x="0" y="0" font-size="24" fill="#5a6273">$</text>
-    <text x="22" y="0" font-size="24" fill="#4fd1c5">npx constraintguard</text>
+    <text x="22" y="0" font-size="24" fill="#4fd1c5">npx @avee1234/constraintguard</text>
   </g>
 
   <!-- right: constraints block mock -->
