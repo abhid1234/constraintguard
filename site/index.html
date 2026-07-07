@@ -163,6 +163,43 @@
   details.src[open] > summary .chev { transform:rotate(90deg); }
   details.src pre { margin:0; padding:16px 18px; border-top:1px solid var(--line); background:var(--panel-2); overflow-x:auto; font-family:var(--mono); font-size:12.5px; line-height:1.6; color:var(--ink); }
 
+  /* scrollytelling — compaction mechanism */
+  .scrolly { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:44px; margin-top:26px; align-items:start; }
+  @media (max-width:820px){ .scrolly { grid-template-columns:1fr; gap:0; } }
+  .scrolly-graphic { position:sticky; top:84px; }
+  @media (max-width:820px){ .scrolly-graphic { top:58px; z-index:6; padding-bottom:10px; } .scrolly-graphic::after { content:""; position:absolute; left:-20px; right:-20px; top:-16px; bottom:0; background:var(--bg); z-index:-1; } }
+  .cw { background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:16px; box-shadow:0 24px 70px -34px rgba(0,0,0,.55); }
+  .cw-head { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:10px; }
+  .cw-title { font-family:var(--mono); font-size:12px; color:var(--muted); letter-spacing:.04em; }
+  .cw-status { font-family:var(--mono); font-size:11px; font-weight:700; padding:3px 9px; border-radius:6px; background:var(--panel-2); color:var(--muted); transition:color .4s; white-space:nowrap; }
+  .cw-cap { height:6px; border-radius:4px; background:var(--panel-2); overflow:hidden; margin-bottom:12px; }
+  .cw-cap > i { display:block; height:100%; width:20%; background:var(--survive); transition:width .7s cubic-bezier(.2,.8,.2,1), background .5s; }
+  .cw-body { display:flex; flex-direction:column; gap:8px; min-height:296px; }
+  .blk { border-radius:9px; padding:10px 12px; font-family:var(--mono); font-size:12px; border:1px solid var(--line); background:var(--panel-2); transition:opacity .5s ease, transform .5s ease, max-height .5s ease, margin .4s ease, padding .4s ease, border-color .5s ease, background .5s ease, box-shadow .5s ease; overflow:hidden; }
+  .blk.constraints { border-color:color-mix(in srgb,var(--brand) 45%,var(--line)); background:color-mix(in srgb,var(--brand) 8%,var(--panel-2)); }
+  .blk-tag { font-size:10px; text-transform:uppercase; letter-spacing:.08em; color:var(--brand); margin-bottom:6px; font-weight:700; }
+  .cwl { line-height:1.95; }
+  .blk.msg { color:var(--muted); }
+  .blk.summary, .blk.action { max-height:0; opacity:0; padding-top:0; padding-bottom:0; border-width:0; }
+  .blk.summary.show, .blk.action.show { max-height:150px; opacity:1; padding:10px 12px; border-width:1px; }
+  .blk.msg.hide { max-height:0; opacity:0; padding-top:0; padding-bottom:0; border-width:0; margin-top:-8px; }
+  .blk.constraints.dropped { opacity:.42; border-color:color-mix(in srgb,var(--drop) 42%,var(--line)); background:color-mix(in srgb,var(--drop) 8%,var(--panel-2)); transform:translateX(6px); }
+  .blk.constraints.dropped .blk-tag { color:var(--drop); }
+  .blk.constraints.dropped .cwl { text-decoration:line-through; text-decoration-color:color-mix(in srgb,var(--drop) 75%,transparent); }
+  .blk.constraints.pinned { opacity:1; transform:none; border-color:color-mix(in srgb,var(--survive) 55%,var(--line)); background:color-mix(in srgb,var(--survive) 10%,var(--panel-2)); box-shadow:0 0 0 3px color-mix(in srgb,var(--survive) 15%,transparent); }
+  .blk.constraints.pinned .blk-tag { color:var(--survive); }
+  .blk.constraints.pinned .blk-tag::after { content:" · pinned ✓"; }
+  .blk.action.bad { color:var(--drop); border-color:color-mix(in srgb,var(--drop) 42%,var(--line)); background:color-mix(in srgb,var(--drop) 10%,var(--panel-2)); }
+  .blk.action.good { color:var(--survive); border-color:color-mix(in srgb,var(--survive) 42%,var(--line)); background:color-mix(in srgb,var(--survive) 10%,var(--panel-2)); }
+  .scrolly-steps { display:flex; flex-direction:column; }
+  .step { min-height:76vh; display:flex; flex-direction:column; justify-content:center; opacity:.32; transition:opacity .4s; }
+  .step:first-child { min-height:52vh; }
+  .step.active { opacity:1; }
+  .step .sn { font-family:var(--mono); font-size:12px; color:var(--brand); font-weight:700; letter-spacing:.06em; margin-bottom:8px; }
+  .step h3 { font-size:clamp(19px,2.4vw,24px); font-weight:800; }
+  .step p { color:var(--muted); font-size:16px; margin:12px 0 0; max-width:450px; line-height:1.55; }
+  @media (max-width:820px){ .step { min-height:66vh; } .step:first-child { min-height:34vh; } }
+
   /* research */
   .paper { background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); }
   .feat-paper { padding:26px 28px; margin-top:26px; border-left:3px solid var(--brand); }
@@ -236,26 +273,38 @@
   <section id="problem">
     <div class="kicker">The problem — "ConstraintRot"</div>
     <h2 class="sec">Compaction is lossy, and constraints are the first casualty.</h2>
-    <p class="sub">To fit a growing conversation into a fixed context window, agents summarize their own history. That summary keeps the gist — and quietly drops the rules. The research (<a href="https://arxiv.org/abs/2606.22528" target="_blank" rel="noopener">arXiv:2606.22528</a>) measured violation rates climbing from 0% to as high as 59% after a compaction. constraintguard reproduces it, then fixes it — <a href="#research">see the evidence ↓</a></p>
-    <div class="ba">
-      <div class="box">
-        <h4>Before compaction — you declared</h4>
-        <div class="cs">
-          <div class="li"><span class="sev must">must</span> never delete production data</div>
-          <div class="li"><span class="sev must">must</span> get sign-off before schema changes</div>
-          <div class="li"><span class="sev should">should</span> prefer small, reviewable PRs</div>
-          <div class="li"><span class="sev should">should</span> cite a source for every claim</div>
+    <p class="sub">To fit a growing conversation into a fixed context window, agents summarize their own history. That summary keeps the gist — and quietly drops the rules. The research (<a href="https://arxiv.org/abs/2606.22528" target="_blank" rel="noopener">arXiv:2606.22528</a>) measured violation rates climbing from 0% to as high as 59% after a compaction. <b>Scroll to watch it happen to a single constraint</b> — then reproduce the numbers yourself below.</p>
+    <div class="scrolly">
+      <div class="scrolly-graphic">
+        <div class="cw" id="cw" data-state="0">
+          <div class="cw-head">
+            <span class="cw-title">agent context window</span>
+            <span class="cw-status" id="cwStatus">rules declared</span>
+          </div>
+          <div class="cw-cap"><i id="cwCap"></i></div>
+          <div class="cw-body">
+            <div class="blk constraints" id="cwConstraints">
+              <div class="blk-tag">constraints</div>
+              <div class="cwl"><span class="sev must">must</span> never delete production data</div>
+              <div class="cwl"><span class="sev must">must</span> sign-off before schema change</div>
+              <div class="cwl"><span class="sev should">should</span> prefer small, reviewable PRs</div>
+            </div>
+            <div class="blk msg">user · plan the database migration</div>
+            <div class="blk msg">assistant · here is the migration plan…</div>
+            <div class="blk msg">tool · ran schema diff (142 rows)</div>
+            <div class="blk msg">assistant · wiring up the rollout…</div>
+            <div class="blk summary" id="cwSummary">summary · planning a DB migration; drafted up/down SQL; user wants to move fast</div>
+            <div class="blk action" id="cwAction"></div>
+          </div>
         </div>
       </div>
-      <div class="arrow">→</div>
-      <div class="box">
-        <h4>After compaction — the agent "remembers"</h4>
-        <div class="cs">
-          <div class="li gone"><span class="sev must">must</span> never delete production data</div>
-          <div class="li"><span class="sev must">must</span> get sign-off before schema changes</div>
-          <div class="li gone"><span class="sev should">should</span> prefer small, reviewable PRs</div>
-          <div class="li gone"><span class="sev should">should</span> cite a source for every claim</div>
-        </div>
+      <div class="scrolly-steps">
+        <div class="step" data-step="0"><div class="sn">STEP 01</div><h3>You set the rules.</h3><p>At the start of a session you declare the constraints the agent must respect. While they sit in the context window, the agent follows them reliably — 0% violations.</p></div>
+        <div class="step" data-step="1"><div class="sn">STEP 02</div><h3>The session grows.</h3><p>Turn after turn, user messages, tool calls, and results pile up. The window fills toward its token limit.</p></div>
+        <div class="step" data-step="2"><div class="sn">STEP 03</div><h3>The window fills up.</h3><p>To keep the session alive, the agent has to reclaim space. Something has to give — and the model decides what.</p></div>
+        <div class="step" data-step="3"><div class="sn">STEP 04</div><h3>Compaction fires — and the rules vanish.</h3><p>The history is summarized into a compact blurb. The summary keeps the task’s gist… and silently drops the constraints. The paper calls this <b>Governance Decay</b>.</p></div>
+        <div class="step" data-step="4"><div class="sn">STEP 05</div><h3>The agent breaks a rule it can’t see.</h3><p>Later it takes an action the vanished rule forbade. Nothing errors — the constraint simply isn’t there anymore. Across models, violations jump from 0% to as high as <b style="color:var(--drop)">59%</b>.</p></div>
+        <div class="step" data-step="5"><div class="sn">STEP 06 · THE FIX</div><h3>constraintguard pins them back.</h3><p>Extract the constraints <em>before</em> compaction, re-pin them into the fresh context <em>after</em>. The rules survive the summary, and violations return to <b style="color:var(--survive)">0%</b>.</p></div>
       </div>
     </div>
   </section>
@@ -617,6 +666,42 @@ $('#otel-copy').addEventListener('click', async ()=>{ try { await navigator.clip
 for (const f of ['extract','conformance','pin','schema']) {
   fetch('./lib/'+f+'.js').then(r=>r.text()).then(t=>{ const el=$('#src-'+f); if(el) el.textContent = t; }).catch(()=>{ const el=$('#src-'+f); if(el) el.textContent='(source unavailable)'; });
 }
+
+/* ---------- scrollytelling: compaction mechanism ---------- */
+(function(){
+  const cw = document.getElementById('cw'); if (!cw) return;
+  const cwCap = document.getElementById('cwCap'), cwStatus = document.getElementById('cwStatus');
+  const cwConstraints = document.getElementById('cwConstraints'), cwSummary = document.getElementById('cwSummary'), cwAction = document.getElementById('cwAction');
+  const msgs = [...cw.querySelectorAll('.blk.msg')];
+  const S = [
+    { cap:22, capCol:'var(--survive)', status:'rules declared ✓',        sCol:'var(--survive)', msgs:2, summary:false, con:'',        act:null },
+    { cap:56, capCol:'var(--amber)',   status:'filling…',                sCol:'var(--amber)',   msgs:4, summary:false, con:'',        act:null },
+    { cap:97, capCol:'var(--drop)',    status:'window full ⚠',           sCol:'var(--drop)',    msgs:4, summary:false, con:'',        act:null },
+    { cap:34, capCol:'var(--amber)',   status:'compacted — rules lost',  sCol:'var(--drop)',    msgs:0, summary:true,  con:'dropped', act:null },
+    { cap:40, capCol:'var(--drop)',    status:'✕ constraint violated',   sCol:'var(--drop)',    msgs:0, summary:true,  con:'dropped', act:{cls:'bad',  text:'✕ agent runs: DROP TABLE production_orders'} },
+    { cap:47, capCol:'var(--survive)', status:'protected · 0% violations', sCol:'var(--survive)', msgs:0, summary:true, con:'pinned',  act:{cls:'good', text:'✓ blocked: “never delete production data”'} },
+  ];
+  function setState(n){
+    const s = S[n]; if (!s) return;
+    cw.dataset.state = n;
+    cwCap.style.width = s.cap + '%'; cwCap.style.background = s.capCol;
+    cwStatus.textContent = s.status; cwStatus.style.color = s.sCol;
+    msgs.forEach((m,i) => m.classList.toggle('hide', i >= s.msgs));
+    cwSummary.classList.toggle('show', s.summary);
+    cwConstraints.classList.toggle('dropped', s.con === 'dropped');
+    cwConstraints.classList.toggle('pinned', s.con === 'pinned');
+    if (s.act){ cwAction.textContent = s.act.text; cwAction.className = 'blk action show ' + s.act.cls; }
+    else { cwAction.className = 'blk action'; cwAction.textContent = ''; }
+  }
+  const steps = [...document.querySelectorAll('.scrolly .step')];
+  const io = new IntersectionObserver((ents) => ents.forEach(e => {
+    if (!e.isIntersecting) return;
+    steps.forEach(x => x.classList.remove('active')); e.target.classList.add('active');
+    setState(+e.target.dataset.step);
+  }), { rootMargin:'-45% 0px -45% 0px', threshold:0 });
+  steps.forEach(s => io.observe(s));
+  setState(0);
+})();
 
 /* ---------- count-up + escalation animations ---------- */
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
