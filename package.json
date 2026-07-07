@@ -1,6 +1,6 @@
 {
   "name": "constraintguard",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Keep an AI agent's declared constraints alive across context compaction. Zero dependencies.",
   "type": "module",
   "bin": {
