@@ -2,9 +2,22 @@
 
 [![CI](https://github.com/abhid1234/constraintguard/actions/workflows/ci.yml/badge.svg)](https://github.com/abhid1234/constraintguard/actions/workflows/ci.yml) [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) ![zero dependencies](https://img.shields.io/badge/dependencies-0-brightgreen.svg)
 
+**[▶ Try the live playground →](https://constraintguard.vercel.app)** · demos run the real library in your browser.
+
+![constraintguard demo](site/constraintguard-demo.gif)
+
+
 **Keep an AI agent's declared constraints alive across context compaction.** Zero dependencies.
 
-When a long-running agent summarizes its history to fit the context window, its safety and policy constraints get silently dropped — measured violation rates jump from 0% to as high as 59% (arXiv 2606.22528, "ConstraintRot"). ConstraintGuard extracts declared constraints *before* compaction and re-pins them *after*, and ships a conformance suite so you can measure the risk on any harness.
+When a long-running agent summarizes its history to fit the context window, its safety and policy constraints get silently dropped — measured violation rates jump from 0% to as high as 59% ([arXiv:2606.22528](https://arxiv.org/abs/2606.22528), *Governance Decay*; "ConstraintRot" is its benchmark). ConstraintGuard extracts declared constraints *before* compaction and re-pins them *after*, and ships a conformance suite so you can measure the risk on any harness.
+
+## Install
+
+```bash
+npm i -g @avee1234/constraintguard   # or: npx @avee1234/constraintguard
+```
+
+## Commands
 
 ```bash
 cg validate constraints.json   # is this a well-formed constraint set?
