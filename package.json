@@ -21,5 +21,30 @@
   ],
   "engines": {
     "node": ">=18"
-  }
+  },
+  "homepage": "https://constraintguard.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/abhid1234/constraintguard.git"
+  },
+  "bugs": {
+    "url": "https://github.com/abhid1234/constraintguard/issues"
+  },
+  "keywords": [
+    "ai",
+    "agent",
+    "llm",
+    "constraints",
+    "context-compaction",
+    "context-window",
+    "guardrails",
+    "governance",
+    "claude-code",
+    "codex",
+    "cursor",
+    "conformance",
+    "constraintrot",
+    "opentelemetry",
+    "zero-dependency"
+  ]
 }
