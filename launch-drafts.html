@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>constraintguard — launch drafts (6 channels)</title>
+<style>
+  :root{--bg:#0b0e14;--panel:#121724;--panel2:#0e1320;--line:#232c3d;--ink:#e7ebf2;--muted:#8891a3;--faint:#5a6273;--brand:#4fd1c5;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:34px 16px 80px;}
+  .wrap{max-width:800px;margin:0 auto;}
+  h1{font-size:27px;letter-spacing:-.5px;margin:0 0 4px;}
+  .sub{color:var(--muted);margin:0 0 8px;}
+  .note{color:var(--faint);font-size:13px;margin:0 0 30px;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin:0 0 18px;}
+  .chan{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;margin:0 0 4px;}
+  .chan .tag{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--brand);border:1px solid var(--line);border-radius:6px;padding:2px 8px;}
+  .meta{color:var(--faint);font-size:12.5px;margin:0 0 14px;}
+  .lbl{display:flex;align-items:center;justify-content:space-between;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700;margin:16px 0 6px;}
+  pre{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:14px;margin:0;white-space:pre-wrap;word-break:break-word;font:13px/1.6 ui-monospace,Menlo,monospace;color:#cdd3dc;}
+  button.cp{background:var(--line);border:none;color:var(--muted);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;}
+  button.cp:hover{color:var(--ink);}
+  a{color:var(--brand);}
+  figure.fig{margin:16px 0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel2);}
+  figure.fig img{display:block;width:100%;height:auto;}
+  figure.fig figcaption{padding:9px 13px;font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;align-items:center;}
+  figure.fig .fname{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--brand);background:var(--panel);border:1px solid var(--line);border-radius:5px;padding:2px 7px;white-space:nowrap;}
+  .imgnote{font-size:12px;color:var(--faint);margin:2px 0 0;}
+  .foot{color:var(--faint);font-size:13px;border-top:1px solid var(--line);padding-top:16px;margin-top:26px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>constraintguard — launch drafts</h1>
+  <p class="sub">Six channels · <a href="https://constraintguard.vercel.app" target="_blank">constraintguard.vercel.app</a> · <code>npx @avee1234/constraintguard</code></p>
+  <p class="note">Draft only — nothing is posted. Each block has its own copy button. The Substack post has 7 figures to insert — the image files are in <code>blog-images/</code> next to this page; upload each where it's shown.</p>
+
+  <!-- X -->
+  <div class="card">
+    <div class="chan"><span class="tag">01</span> 𝕏 / Twitter</div>
+    <div class="meta">Two posts. Hook → value → proof → link.</div>
+    <div class="lbl">Post 1 <button class="cp">copy</button></div>
+    <pre>Your AI agent forgets its own rules.
+
+When context compacts, ~46% of declared constraints silently vanish — measured. One session dropped 60%.
+
+constraintguard extracts them before, re-pins them after. Zero deps.
+
+npx @avee1234/constraintguard
+https://constraintguard.vercel.app</pre>
+    <div class="lbl">Post 2 (optional) <button class="cp">copy</button></div>
+    <pre>The wild part: constraintguard was built and shipped end-to-end by an autonomous agent "software factory" I run — 164 tests, adapters for Claude Code / Codex / Cursor, a compaction hook that auto-re-pins. The tool now protects the agents that built it.</pre>
+    <p class="imgnote">Tip: attach the launch video or diagram-mechanism.png to post 1 for reach.</p>
+  </div>
+
+  <!-- LinkedIn -->
+  <div class="card">
+    <div class="chan"><span class="tag">02</span> LinkedIn</div>
+    <div class="meta">Professional. First line is the feed hook.</div>
+    <div class="lbl">Post <button class="cp">copy</button></div>
+    <pre>Long-running AI agents have a silent failure mode: they forget their own rules.
+
+When an agent compacts its context to fit the window, its declared constraints — "never touch production data," "always cite sources" — get summarized away. This isn't hypothetical: the "Governance Decay" research (arXiv:2606.22528) measured it, and I reproduced it with my own tooling — 46% of declared constraints silently dropped across compaction, with one session losing 60%.
+
+So I built constraintguard: a zero-dependency tool that extracts an agent's declared constraints before compaction and re-pins them after — with a conformance suite to measure the risk on any harness. It ships adapters for Claude Code, Codex, and Cursor, and a compaction hook that closes the loop automatically.
+
+The part I'm most proud of: constraintguard was built and shipped autonomously by an agent "software factory" I've been developing — triage, spec, implementation, adversarial review, and release, with me approving the gates. 164 tests, MIT-licensed, live on npm.
+
+Try it: npx @avee1234/constraintguard
+https://constraintguard.vercel.app
+
+Curious what constraints your agents are quietly dropping.</pre>
+    <p class="imgnote">Tip: attach diagram-escalation.png (the 0→59% chart) — data visuals lift LinkedIn reach.</p>
+  </div>
+
+  <!-- Substack -->
+  <div class="card">
+    <div class="chan"><span class="tag">03</span> Substack <span style="color:var(--faint);font-weight:400;">· with figures</span></div>
+    <div class="meta">Newsletter — paste each text chunk, insert the figure shown between them.</div>
+
+    <div class="lbl">Title + subtitle <button class="cp">copy</button></div>
+    <pre>The 46% Problem: Why Your AI Agent Forgets Its Own Rules
+I measured how many constraints vanish when an agent compacts its context — then built a zero-dependency tool to stop it.</pre>
+
+    <div class="lbl">Body — part 1 <button class="cp">copy</button></div>
+    <pre>A few weeks ago I kept noticing the same thing in long agent sessions: the rules I'd carefully set at the start would quietly stop being followed. Not dramatically — the agent didn't rebel. It just... forgot. "Prefer small PRs." "Never delete production data." Gone, somewhere in the middle of a long run.
+
+It turns out there's a name for this. A recent paper (arXiv:2606.22528) calls it Governance Decay: when an agent summarizes its history to fit the context window, its declared constraints are among the first things sacrificed.</pre>
+
+    <figure class="fig"><img src="blog-images/diagram-mechanism.png" alt="Before/after compaction">
+      <figcaption><span>Fig 1 — Compaction summarizes the history and drops the declared constraints.</span><span class="fname">diagram-mechanism.png</span></figcaption></figure>
+
+    <div class="lbl">Body — part 2 <button class="cp">copy</button></div>
+    <pre>The researchers measured violation rates climbing from 0% to as high as 59% after compaction — and when a rule survives the summary, violations stay at 0%, but when it's dropped, they jump to 38%. So the whole problem is about what compaction chooses to keep.
+
+I didn't want to take the number on faith, so I reproduced it with my own tooling. Across a set of sessions, 46% of declared constraints silently dropped on compaction — and one session lost 60%. The constraint doesn't get flagged or removed. It just isn't there anymore, and neither the agent nor the user notices until something goes wrong.</pre>
+
+    <figure class="fig"><img src="blog-images/diagram-escalation.png" alt="Violation rate chart">
+      <figcaption><span>Fig 2 — Constraint-violation rate after compaction (arXiv:2606.22528).</span><span class="fname">diagram-escalation.png</span></figcaption></figure>
+
+    <div class="lbl">Body — part 3 <button class="cp">copy</button></div>
+    <pre>So I built constraintguard. The idea is simple: extract an agent's declared constraints before compaction, and re-pin them after. It's zero-dependency, open format, harness-neutral. Four commands: validate, extract, pin, conformance — the last one scores how well constraints survived, so you can actually measure the risk instead of guessing.</pre>
+
+    <figure class="fig"><img src="blog-images/diagram-how.png" alt="How constraintguard works">
+      <figcaption><span>Fig 3 — Extract before compaction, re-pin after, then measure retention.</span><span class="fname">diagram-how.png</span></figcaption></figure>
+
+    <div class="lbl">Body — part 4 <button class="cp">copy</button></div>
+    <pre>Here's the concrete version. You declare constraints in a simple fenced block. cg extract pulls them out of a session transcript (there are adapters for Claude Code, Codex, and Cursor). When the context compacts, a hook re-injects them into the fresh context with a note that they still hold. And cg conformance old.md new.md tells you exactly which ones survived and which rotted away.</pre>
+
+    <figure class="fig"><img src="blog-images/diagram-format.png" alt="Constraint format">
+      <figcaption><span>Fig 4 — Declare in a fenced block; it extracts to validated JSON.</span><span class="fname">diagram-format.png</span></figcaption></figure>
+
+    <figure class="fig"><img src="blog-images/still-terminal.jpg" alt="Terminal usage">
+      <figcaption><span>Fig 5 — The four commands in action.</span><span class="fname">still-terminal.jpg</span></figcaption></figure>
+
+    <div class="lbl">Body — part 5 <button class="cp">copy</button></div>
+    <pre>And npm run bench reproduces the whole finding on committed sample sessions — 46.2% of declared constraints rot across three realistic before/after transcripts.</pre>
+
+    <figure class="fig"><img src="blog-images/diagram-benchmark.png" alt="Benchmark results">
+      <figcaption><span>Fig 6 — npm run bench, reproduced: 53.8% retained, 46.2% ConstraintRot.</span><span class="fname">diagram-benchmark.png</span></figcaption></figure>
+
+    <div class="lbl">Body — part 6 <button class="cp">copy</button></div>
+    <pre>The part I find almost funny: constraintguard was built and shipped almost entirely by an autonomous agent "software factory" I've been developing — it triaged the ideas, wrote the specs, implemented each feature, ran adversarial review (which caught a real data-loss bug I'd have missed), and shipped to npm, with me just approving the gates from my phone. The tool that keeps agents honest was built by agents. It now runs on the very sessions that built it.
+
+It's MIT-licensed and live: npx @avee1234/constraintguard, or the source at https://github.com/abhid1234/constraintguard
+
+If you're running agents for anything longer than a few minutes, I'd genuinely like to know: what constraints are yours quietly dropping? Reply and tell me — I'm collecting failure cases.</pre>
+
+    <figure class="fig"><img src="blog-images/diagram-factory.png" alt="Agent factory">
+      <figcaption><span>Fig 7 — Every feature triaged, specced, built, adversarially reviewed, and shipped by agents.</span><span class="fname">diagram-factory.png</span></figcaption></figure>
+  </div>
+
+  <!-- HN -->
+  <div class="card">
+    <div class="chan"><span class="tag">04</span> Hacker News — Show HN</div>
+    <div class="meta">Title ≤80 chars · technical body · link at top.</div>
+    <div class="lbl">Title <button class="cp">copy</button></div>
+    <pre>Show HN: constraintguard – keep an AI agent's rules alive across compaction</pre>
+    <div class="lbl">Body <button class="cp">copy</button></div>
+    <pre>https://github.com/abhid1234/constraintguard
+
+When a long-running agent compacts its context to stay under the token limit, it summarizes its own history — and the declared constraints ("never touch prod", "always cite a source") are often the first thing dropped. The agent then does something it was told not to, and nothing errors, because the rule simply isn't in context anymore.
+
+There's a recent paper on this (arXiv:2606.22528, "Governance Decay") that measured constraint-violation rates going from 0% in full context to as high as 59% after a compaction across 7 model families. Its proposed mitigation is literally called "Constraint Pinning" — constraintguard is an implementation of that.
+
+It's ~380 lines of zero-dependency, harness-neutral JS. Four commands: extract (pull declared constraints out of a session), pin (re-inject them into the compacted context, round-trip guaranteed), conformance (score how many survived), validate. Plus adapters for Claude Code / Codex / Cursor transcripts, a drop-in Claude Code compaction hook that auto-re-pins, and `npm run bench` which reproduces the ~46% drop on sample fixtures.
+
+There's a live playground where the demos run the actual published library client-side (nothing faked): https://constraintguard.vercel.app
+
+One honest disclosure since it's interesting: this was built almost entirely by an autonomous "agent factory" I've been developing — triage, spec, implement, adversarial review, ship, with me approving the gates. The adversarial review caught a real round-trip data-loss bug I'd have missed. Happy to talk about either the tool or how it was built.
+
+npx @avee1234/constraintguard</pre>
+  </div>
+
+  <!-- Product Hunt -->
+  <div class="card">
+    <div class="chan"><span class="tag">05</span> Product Hunt</div>
+    <div class="meta">Tagline ≤60 chars · maker's first comment.</div>
+    <div class="lbl">Tagline <button class="cp">copy</button></div>
+    <pre>Keep your AI agent's rules alive across context compaction</pre>
+    <div class="lbl">First comment (maker) <button class="cp">copy</button></div>
+    <pre>Hey PH 👋 I kept noticing that in long agent sessions, the rules I set at the start would quietly stop being followed. Turns out there's a name for it — "Governance Decay" (arXiv:2606.22528): when an agent compacts its context, constraints get summarized away, and violation rates jump from 0% to as high as 59%.
+
+constraintguard extracts your constraints before compaction and re-pins them after, with a conformance score so you can measure the risk on any harness. Zero dependencies, adapters for Claude Code / Codex / Cursor, and a hook that makes it self-applying.
+
+There's a playground where every demo runs the real library in your browser: https://constraintguard.vercel.app — I'd genuinely love to know what constraints your agents are quietly dropping. Feedback very welcome!</pre>
+    <p class="imgnote">Gallery: use the launch video + diagram-mechanism.png, diagram-how.png, diagram-benchmark.png.</p>
+  </div>
+
+  <!-- Reddit -->
+  <div class="card">
+    <div class="chan"><span class="tag">06</span> Reddit — r/LLMDevs <span style="color:var(--faint);font-weight:400;">(alt: r/AI_Agents)</span></div>
+    <div class="meta">Direct title · problem → solution → link.</div>
+    <div class="lbl">Title <button class="cp">copy</button></div>
+    <pre>I built a zero-dep tool to stop agents from "forgetting" their rules after context compaction</pre>
+    <div class="lbl">Body <button class="cp">copy</button></div>
+    <pre>If you run agents for more than a few minutes, you've probably hit this even if you didn't name it: you set constraints at the start, the session gets long, the context compacts to fit the window, and afterward the agent quietly stops respecting some of those rules. Nothing errors — the constraint just isn't in context anymore.
+
+There's a paper measuring exactly this (arXiv:2606.22528, "Governance Decay"): 0% violations with the policy in full context → up to 59% after a compaction, across 7 model families. When the constraint survives the summary, violations stay at 0%; when it's dropped, they hit 38%. So it's entirely about what compaction keeps.
+
+constraintguard is my take on the fix (which the paper calls "Constraint Pinning"):
+- extract — pull declared constraints out of a context/transcript
+- pin — re-inject them into the compacted context (round-trip guaranteed)
+- conformance — score how many survived, list what rotted
+- adapters for Claude Code / Codex / Cursor, + a compaction hook that auto-re-pins
+
+Zero dependencies, harness-neutral, MIT. npm run bench reproduces ~46% drop on sample fixtures. Live playground (demos run the real lib in-browser): https://constraintguard.vercel.app · code: https://github.com/abhid1234/constraintguard
+
+Curious whether others have hit this and how you've been handling it.</pre>
+  </div>
+
+  <div class="foot">Reminder: after you post, (1) the old unscoped <code>constraintguard</code> is already unpublished ✓, and (2) tokens rotated ✓.</div>
+</div>
+
+<script>
+  document.querySelectorAll('button.cp').forEach(btn=>{
+    btn.addEventListener('click',async()=>{
+      const pre=btn.closest('.lbl').nextElementSibling;
+      try{await navigator.clipboard.writeText(pre.textContent);const o=btn.textContent;btn.textContent='copied ✓';setTimeout(()=>btn.textContent=o,1300);}catch(e){}
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<svg width="1200" height="560" viewBox="0 0 1200 560" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica Neue, Arial, sans-serif">
+  <rect width="1200" height="560" fill="#0b0e14"/>
+  <rect x="0" y="0" width="1200" height="4" fill="#4fd1c5"/>
+  <text x="60" y="58" font-size="26" font-weight="800" fill="#e7ebf2">What compaction does to your rules</text>
+
+  <!-- BEFORE card -->
+  <g transform="translate(60,100)">
+    <rect width="440" height="380" rx="18" fill="#121724" stroke="#232c3d"/>
+    <text x="24" y="40" font-family="Menlo,monospace" font-size="15" fill="#8891a3">context window · full</text>
+    <rect x="24" y="60" width="392" height="118" rx="11" fill="#0f1a1c" stroke="#2b5c56"/>
+    <text x="40" y="86" font-family="Menlo,monospace" font-size="12" fill="#4fd1c5" letter-spacing="1.5">CONSTRAINTS</text>
+    <text x="40" y="114" font-family="Menlo,monospace" font-size="15" fill="#cdd3dc">must: never delete prod data</text>
+    <text x="40" y="140" font-family="Menlo,monospace" font-size="15" fill="#cdd3dc">must: sign-off before schema</text>
+    <text x="40" y="166" font-family="Menlo,monospace" font-size="15" fill="#cdd3dc">should: cite every claim</text>
+    <rect x="24" y="196" width="392" height="34" rx="9" fill="#0e1320" stroke="#232c3d"/><text x="40" y="218" font-family="Menlo,monospace" font-size="14" fill="#8891a3">user · plan the migration</text>
+    <rect x="24" y="240" width="392" height="34" rx="9" fill="#0e1320" stroke="#232c3d"/><text x="40" y="262" font-family="Menlo,monospace" font-size="14" fill="#8891a3">assistant · here's the plan…</text>
+    <rect x="24" y="284" width="392" height="34" rx="9" fill="#0e1320" stroke="#232c3d"/><text x="40" y="306" font-family="Menlo,monospace" font-size="14" fill="#8891a3">tool · ran schema diff</text>
+    <text x="24" y="352" font-size="16" fill="#34d399" font-weight="700">✓ agent obeys the rules</text>
+  </g>
+
+  <!-- arrow -->
+  <g transform="translate(520,290)">
+    <line x1="0" y1="0" x2="150" y2="0" stroke="#4fd1c5" stroke-width="2"/>
+    <path d="M150 0 l-14 -8 l0 16 z" fill="#4fd1c5"/>
+    <text x="75" y="-18" text-anchor="middle" font-family="Menlo,monospace" font-size="14" fill="#4fd1c5">compaction</text>
+    <text x="75" y="30" text-anchor="middle" font-size="13" fill="#5a6273">summarize to fit</text>
+  </g>
+
+  <!-- AFTER card -->
+  <g transform="translate(700,100)">
+    <rect width="440" height="380" rx="18" fill="#121724" stroke="#232c3d"/>
+    <text x="24" y="40" font-family="Menlo,monospace" font-size="15" fill="#8891a3">context window · compacted</text>
+    <rect x="24" y="60" width="392" height="70" rx="11" fill="#0e1320" stroke="#33405a"/>
+    <text x="40" y="88" font-family="Menlo,monospace" font-size="14" fill="#aeb6c4">summary · planning a DB migration;</text>
+    <text x="40" y="110" font-family="Menlo,monospace" font-size="14" fill="#aeb6c4">drafted SQL; moving fast</text>
+    <rect x="24" y="148" width="392" height="118" rx="11" fill="#1a0f12" stroke="#7a2c38" opacity="0.9"/>
+    <text x="40" y="174" font-family="Menlo,monospace" font-size="12" fill="#fb7185" letter-spacing="1.5">CONSTRAINTS · DROPPED</text>
+    <text x="40" y="202" font-family="Menlo,monospace" font-size="15" fill="#6b5560" text-decoration="line-through">must: never delete prod data</text>
+    <line x1="40" y1="197" x2="300" y2="197" stroke="#fb7185" stroke-width="1.4"/>
+    <text x="40" y="228" font-family="Menlo,monospace" font-size="15" fill="#6b5560" text-decoration="line-through">must: sign-off before schema</text>
+    <line x1="40" y1="223" x2="300" y2="223" stroke="#fb7185" stroke-width="1.4"/>
+    <text x="40" y="254" font-family="Menlo,monospace" font-size="15" fill="#6b5560" text-decoration="line-through">should: cite every claim</text>
+    <line x1="40" y1="249" x2="250" y2="249" stroke="#fb7185" stroke-width="1.4"/>
+    <text x="24" y="352" font-size="16" fill="#fb7185" font-weight="700">✕ the rules are gone — silently</text>
+  </g>
+</svg>

@@ -1,0 +1,53 @@
+<svg width="1200" height="560" viewBox="0 0 1200 560" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica Neue, Arial, sans-serif">
+  <rect width="1200" height="560" fill="#0b0e14"/>
+  <rect x="0" y="0" width="1200" height="4" fill="#4fd1c5"/>
+  <text x="60" y="58" font-size="26" font-weight="800" fill="#e7ebf2">Reproducing it: <tspan font-family="Menlo,monospace" fill="#4fd1c5" font-size="22">npm run bench</tspan></text>
+  <text x="60" y="90" font-size="17" fill="#8891a3">Constraint retention across three realistic before/after sessions</text>
+
+  <!-- column headers -->
+  <g font-family="Helvetica Neue, Arial, sans-serif" font-size="14" fill="#5a6273" letter-spacing="1">
+    <text x="60" y="146">SCENARIO</text>
+    <text x="1140" y="146" text-anchor="end">RETENTION</text>
+  </g>
+  <line x1="60" y1="160" x2="1140" y2="160" stroke="#232c3d"/>
+
+  <!-- rows: track 520..1060 (540px), retention bar -->
+  <g font-family="Helvetica Neue, Arial, sans-serif">
+    <!-- support 50% -->
+    <text x="60" y="212" font-size="19" fill="#c3cad6">Support agent</text>
+    <text x="470" y="212" font-family="Menlo,monospace" font-size="15" fill="#5a6273">2 / 4</text>
+    <rect x="560" y="192" width="500" height="28" rx="7" fill="#0e1320" stroke="#232c3d"/>
+    <rect x="560" y="192" width="250" height="28" rx="7" fill="#fbbf24"/>
+    <text x="1140" y="213" text-anchor="end" font-family="Menlo,monospace" font-size="19" font-weight="700" fill="#fbbf24">50%</text>
+
+    <!-- coding 40% -->
+    <text x="60" y="272" font-size="19" fill="#c3cad6">Coding assistant</text>
+    <text x="470" y="272" font-family="Menlo,monospace" font-size="15" fill="#5a6273">2 / 5</text>
+    <rect x="560" y="252" width="500" height="28" rx="7" fill="#0e1320" stroke="#232c3d"/>
+    <rect x="560" y="252" width="200" height="28" rx="7" fill="#fb7185"/>
+    <text x="1140" y="273" text-anchor="end" font-family="Menlo,monospace" font-size="19" font-weight="700" fill="#fb7185">40%</text>
+
+    <!-- medical 75% -->
+    <text x="60" y="332" font-size="19" fill="#c3cad6">Medical triage</text>
+    <text x="470" y="332" font-family="Menlo,monospace" font-size="15" fill="#5a6273">3 / 4</text>
+    <rect x="560" y="312" width="500" height="28" rx="7" fill="#0e1320" stroke="#232c3d"/>
+    <rect x="560" y="312" width="375" height="28" rx="7" fill="#34d399"/>
+    <text x="1140" y="333" text-anchor="end" font-family="Menlo,monospace" font-size="19" font-weight="700" fill="#34d399">75%</text>
+  </g>
+
+  <line x1="60" y1="372" x2="1140" y2="372" stroke="#232c3d" stroke-width="2"/>
+
+  <!-- overall -->
+  <g transform="translate(60,410)">
+    <text x="0" y="34" font-size="22" font-weight="800" fill="#e7ebf2">Overall</text>
+    <text x="0" y="66" font-size="16" fill="#8891a3">7 of 13 constraints survived</text>
+    <g transform="translate(600,0)">
+      <text x="0" y="16" font-size="15" fill="#5a6273">retention</text>
+      <text x="0" y="58" font-family="Menlo,monospace" font-size="44" font-weight="800" fill="#34d399">53.8%</text>
+    </g>
+    <g transform="translate(880,0)">
+      <text x="0" y="16" font-size="15" fill="#5a6273">ConstraintRot</text>
+      <text x="0" y="58" font-family="Menlo,monospace" font-size="44" font-weight="800" fill="#fb7185">46.2%</text>
+    </g>
+  </g>
+</svg>

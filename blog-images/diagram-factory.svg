@@ -1,0 +1,73 @@
+<svg width="1200" height="560" viewBox="0 0 1200 560" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica Neue, Arial, sans-serif">
+  <rect width="1200" height="560" fill="#0b0e14"/>
+  <rect x="0" y="0" width="1200" height="4" fill="#4fd1c5"/>
+  <text x="60" y="58" font-size="26" font-weight="800" fill="#e7ebf2">How it was built — an autonomous agent factory</text>
+  <text x="60" y="90" font-size="17" fill="#8891a3">Every feature: triaged, specced, implemented, reviewed, and shipped by agents — human approves the gates.</text>
+
+  <!-- stages -->
+  <g font-family="Helvetica Neue, Arial, sans-serif">
+    <!-- helper: each node -->
+    <!-- row 1 -->
+    <g transform="translate(60,150)">
+      <rect width="200" height="86" rx="14" fill="#121724" stroke="#232c3d"/>
+      <text x="20" y="36" font-size="18" font-weight="700" fill="#e7ebf2">Triage</text>
+      <text x="20" y="64" font-size="14" fill="#8891a3">idea → is it in scope?</text>
+    </g>
+    <g transform="translate(340,150)">
+      <rect width="200" height="86" rx="14" fill="#121724" stroke="#232c3d"/>
+      <text x="20" y="36" font-size="18" font-weight="700" fill="#e7ebf2">Spec</text>
+      <text x="20" y="64" font-size="14" fill="#8891a3">design + tech plan</text>
+    </g>
+    <g transform="translate(620,150)">
+      <rect width="220" height="86" rx="14" fill="#121a16" stroke="#4fd1c5"/>
+      <text x="20" y="36" font-size="18" font-weight="700" fill="#4fd1c5">/approve</text>
+      <text x="20" y="64" font-size="14" fill="#8891a3">human gate · from phone</text>
+    </g>
+    <g transform="translate(920,150)">
+      <rect width="220" height="86" rx="14" fill="#121724" stroke="#232c3d"/>
+      <text x="20" y="36" font-size="18" font-weight="700" fill="#e7ebf2">Implement</text>
+      <text x="20" y="64" font-size="14" fill="#8891a3">branch + PR</text>
+    </g>
+
+    <!-- arrows row 1 -->
+    <g stroke="#4fd1c5" stroke-width="2" fill="#4fd1c5">
+      <line x1="260" y1="193" x2="336" y2="193"/><path d="M336 193 l-12 -7 l0 14 z"/>
+      <line x1="540" y1="193" x2="616" y2="193"/><path d="M616 193 l-12 -7 l0 14 z"/>
+      <line x1="840" y1="193" x2="916" y2="193"/><path d="M916 193 l-12 -7 l0 14 z"/>
+    </g>
+
+    <!-- down connector from Implement to Review -->
+    <g stroke="#4fd1c5" stroke-width="2" fill="#4fd1c5">
+      <path d="M1030 236 L1030 300 L840 300" fill="none"/><path d="M840 300 l12 -7 l0 14 z"/>
+    </g>
+
+    <!-- row 2 -->
+    <g transform="translate(620,300)">
+      <rect width="220" height="86" rx="14" fill="#1a0f12" stroke="#7a2c38"/>
+      <text x="20" y="36" font-size="18" font-weight="700" fill="#fb7185">Adversarial review</text>
+      <text x="20" y="64" font-size="14" fill="#8891a3">maker ≠ checker</text>
+    </g>
+    <g transform="translate(340,300)">
+      <rect width="200" height="86" rx="14" fill="#121a16" stroke="#4fd1c5"/>
+      <text x="20" y="36" font-size="18" font-weight="700" fill="#4fd1c5">/ship</text>
+      <text x="20" y="64" font-size="14" fill="#8891a3">human gate → merge</text>
+    </g>
+    <g transform="translate(60,300)">
+      <rect width="200" height="86" rx="14" fill="#121a16" stroke="#2b7a5e"/>
+      <text x="20" y="36" font-size="18" font-weight="700" fill="#34d399">Shipped</text>
+      <text x="20" y="64" font-size="14" fill="#8891a3">on main + npm</text>
+    </g>
+    <!-- arrows row 2 (right to left) -->
+    <g stroke="#4fd1c5" stroke-width="2" fill="#4fd1c5">
+      <line x1="620" y1="343" x2="544" y2="343"/><path d="M544 343 l12 -7 l0 14 z"/>
+      <line x1="340" y1="343" x2="264" y2="343"/><path d="M264 343 l12 -7 l0 14 z"/>
+    </g>
+  </g>
+
+  <!-- footnote -->
+  <g transform="translate(60,440)">
+    <rect width="1080" height="72" rx="12" fill="#121724" stroke="#232c3d"/>
+    <text x="24" y="34" font-size="16" fill="#c3cad6">The adversarial review even caught a real round-trip <tspan fill="#fb7185" font-weight="700">data-loss bug</tspan> the author would have missed —</text>
+    <text x="24" y="58" font-size="16" fill="#8891a3">the tool that keeps agents honest was built by agents, and now runs on the very sessions that built it.</text>
+  </g>
+</svg>
