@@ -18,7 +18,7 @@ import {
 import { runPreCompact, runSessionStart, safeSessionKey } from '../src/hook.js';
 
 const USAGE = [
-  'usage: cg extract [--strict] [--harness text|claude-code|codex|cursor] <context-file-or-project-dir>',
+  'usage: cg extract [--strict] [--harness text|claude-code|codex|cursor|antigravity] <context-file-or-project-dir>',
   '       cg conformance [--json] [--match id|exact] [--threshold <t>] [--strict] <original> <compacted>',
   '       cg pin <constraints-json|-> <context-file>',
   '       cg otel constraints [--strict] <context-file>',

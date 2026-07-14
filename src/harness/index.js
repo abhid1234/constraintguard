@@ -5,19 +5,22 @@
 // consumes. `text` is the identity adapter — today's behavior, returned
 // verbatim — so omitting `--harness` is a no-op. `claude-code` isolates the
 // operator's text from a Claude Code `.jsonl` transcript; `codex` does the same
-// for an OpenAI Codex CLI `.jsonl` rollout. Adding a harness is a one-line
-// registry entry.
+// for an OpenAI Codex CLI `.jsonl` rollout; `antigravity` isolates the rules
+// text of a Google Antigravity `AGENTS.md` / `.antigravity/rules/*.md` file.
+// Adding a harness is a one-line registry entry.
 
 import { extractConstraints } from '../extract.js';
 import { claudeCodeToContext } from './claude-code.js';
 import { codexToContext } from './codex.js';
 import { cursorToContext } from './cursor.js';
+import { antigravityToContext } from './antigravity.js';
 
 const ADAPTERS = {
   text: (raw) => raw,
   'claude-code': claudeCodeToContext,
   codex: codexToContext,
   cursor: cursorToContext,
+  antigravity: antigravityToContext,
 };
 
 // Supported harness names, for usage/error text.

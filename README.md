@@ -24,6 +24,7 @@ cg validate constraints.json   # is this a well-formed constraint set?
 cg extract session.md          # pull declared constraints out of a context
 cg extract --harness claude-code session.jsonl  # …or straight from a Claude Code transcript
 cg extract --harness codex rollout.jsonl        # …or from an OpenAI Codex CLI rollout
+cg extract --harness antigravity AGENTS.md      # …or a Google Antigravity rules file
 cg pin constraints.json ctx.md # re-inject constraints into a (compacted) context
 cg conformance orig.md new.md  # score how well constraints survive compaction
 cg otel constraints ctx.md     # map constraints to OpenTelemetry span attributes

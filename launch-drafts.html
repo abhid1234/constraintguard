@@ -49,7 +49,7 @@ constraintguard extracts them before, re-pins them after. Zero deps.
 npx @avee1234/constraintguard
 https://constraintguard.vercel.app</pre>
     <div class="lbl">Post 2 (optional) <button class="cp">copy</button></div>
-    <pre>The wild part: constraintguard was built and shipped end-to-end by an autonomous agent "software factory" I run — 164 tests, adapters for Claude Code / Codex / Cursor, a compaction hook that auto-re-pins. The tool now protects the agents that built it.</pre>
+    <pre>The wild part: constraintguard was built and shipped end-to-end by an autonomous agent "software factory" I run — 164 tests, adapters for Claude Code / Codex / Cursor / Google Antigravity, a compaction hook that auto-re-pins. The tool now protects the agents that built it.</pre>
     <p class="imgnote">Tip: attach the launch video or diagram-mechanism.png to post 1 for reach.</p>
   </div>
 
@@ -62,7 +62,7 @@ https://constraintguard.vercel.app</pre>
 
 When an agent compacts its context to fit the window, its declared constraints — "never touch production data," "always cite sources" — get summarized away. This isn't hypothetical: the "Governance Decay" research (arXiv:2606.22528) measured it, and I reproduced it with my own tooling — 46% of declared constraints silently dropped across compaction, with one session losing 60%.
 
-So I built constraintguard: a zero-dependency tool that extracts an agent's declared constraints before compaction and re-pins them after — with a conformance suite to measure the risk on any harness. It ships adapters for Claude Code, Codex, and Cursor, and a compaction hook that closes the loop automatically.
+So I built constraintguard: a zero-dependency tool that extracts an agent's declared constraints before compaction and re-pins them after — with a conformance suite to measure the risk on any harness. It ships adapters for Claude Code, Codex, Cursor, and Google Antigravity, and a compaction hook that closes the loop automatically.
 
 The part I'm most proud of: constraintguard was built and shipped autonomously by an agent "software factory" I've been developing — triage, spec, implementation, adversarial review, and release, with me approving the gates. 164 tests, MIT-licensed, live on npm.
 
@@ -105,7 +105,7 @@ I didn't want to take the number on faith, so I reproduced it with my own toolin
       <figcaption><span>Fig 3 — Extract before compaction, re-pin after, then measure retention.</span><span class="fname">diagram-how.png</span></figcaption></figure>
 
     <div class="lbl">Body — part 4 <button class="cp">copy</button></div>
-    <pre>Here's the concrete version. You declare constraints in a simple fenced block. cg extract pulls them out of a session transcript (there are adapters for Claude Code, Codex, and Cursor). When the context compacts, a hook re-injects them into the fresh context with a note that they still hold. And cg conformance old.md new.md tells you exactly which ones survived and which rotted away.</pre>
+    <pre>Here's the concrete version. You declare constraints in a simple fenced block. cg extract pulls them out of a session transcript (there are adapters for Claude Code, Codex, Cursor, and Google Antigravity). When the context compacts, a hook re-injects them into the fresh context with a note that they still hold. And cg conformance old.md new.md tells you exactly which ones survived and which rotted away.</pre>
 
     <figure class="fig"><img src="blog-images/diagram-format.png" alt="Constraint format">
       <figcaption><span>Fig 4 — Declare in a fenced block; it extracts to validated JSON.</span><span class="fname">diagram-format.png</span></figcaption></figure>
@@ -143,7 +143,7 @@ When a long-running agent compacts its context to stay under the token limit, it
 
 There's a recent paper on this (arXiv:2606.22528, "Governance Decay") that measured constraint-violation rates going from 0% in full context to as high as 59% after a compaction across 7 model families. Its proposed mitigation is literally called "Constraint Pinning" — constraintguard is an implementation of that.
 
-It's ~380 lines of zero-dependency, harness-neutral JS. Four commands: extract (pull declared constraints out of a session), pin (re-inject them into the compacted context, round-trip guaranteed), conformance (score how many survived), validate. Plus adapters for Claude Code / Codex / Cursor transcripts, a drop-in Claude Code compaction hook that auto-re-pins, and `npm run bench` which reproduces the ~46% drop on sample fixtures.
+It's ~380 lines of zero-dependency, harness-neutral JS. Four commands: extract (pull declared constraints out of a session), pin (re-inject them into the compacted context, round-trip guaranteed), conformance (score how many survived), validate. Plus adapters for Claude Code / Codex / Cursor / Google Antigravity transcripts, a drop-in Claude Code compaction hook that auto-re-pins, and `npm run bench` which reproduces the ~46% drop on sample fixtures.
 
 There's a live playground where the demos run the actual published library client-side (nothing faked): https://constraintguard.vercel.app
 
@@ -161,7 +161,7 @@ npx @avee1234/constraintguard</pre>
     <div class="lbl">First comment (maker) <button class="cp">copy</button></div>
     <pre>Hey PH 👋 I kept noticing that in long agent sessions, the rules I set at the start would quietly stop being followed. Turns out there's a name for it — "Governance Decay" (arXiv:2606.22528): when an agent compacts its context, constraints get summarized away, and violation rates jump from 0% to as high as 59%.
 
-constraintguard extracts your constraints before compaction and re-pins them after, with a conformance score so you can measure the risk on any harness. Zero dependencies, adapters for Claude Code / Codex / Cursor, and a hook that makes it self-applying.
+constraintguard extracts your constraints before compaction and re-pins them after, with a conformance score so you can measure the risk on any harness. Zero dependencies, adapters for Claude Code / Codex / Cursor / Google Antigravity, and a hook that makes it self-applying.
 
 There's a playground where every demo runs the real library in your browser: https://constraintguard.vercel.app — I'd genuinely love to know what constraints your agents are quietly dropping. Feedback very welcome!</pre>
     <p class="imgnote">Gallery: use the launch video + diagram-mechanism.png, diagram-how.png, diagram-benchmark.png.</p>
@@ -182,7 +182,7 @@ constraintguard is my take on the fix (which the paper calls "Constraint Pinning
 - extract — pull declared constraints out of a context/transcript
 - pin — re-inject them into the compacted context (round-trip guaranteed)
 - conformance — score how many survived, list what rotted
-- adapters for Claude Code / Codex / Cursor, + a compaction hook that auto-re-pins
+- adapters for Claude Code / Codex / Cursor / Google Antigravity, + a compaction hook that auto-re-pins
 
 Zero dependencies, harness-neutral, MIT. npm run bench reproduces ~46% drop on sample fixtures. Live playground (demos run the real lib in-browser): https://constraintguard.vercel.app · code: https://github.com/abhid1234/constraintguard
 
