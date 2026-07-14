@@ -63,3 +63,31 @@ export function conformanceToSpanAttributes(result) {
     [`${NS}.conformance.dropped.ids`]: dropped.map((c) => c.id),
   };
 }
+
+// Map a budget report (`{ total_tokens, file_count, over_budget, overages,
+// unused, unused_tokens, utilization, waste_ratio }`, as returned by
+// `budgetReport`, #context-budget) to a flat OTel span-attribute object under
+// `constraintguard.budget.*`. Emits the exact `utilization`/`waste_ratio` floats
+// (not display-rounded), the `over_budget` boolean so a dashboard can alert on
+// leaky context, and the unused paths + blown cap names (scalar counts kept
+// separate from the arrays under a sub-namespace, so keys never collide). Reads
+// each field defensively (missing arrays mean "none"); assumes an otherwise
+// well-formed report. Every value is OTel-legal (string, finite number, boolean,
+// or homogeneous string array), so it spreads straight into `span.setAttributes`.
+export function budgetToSpanAttributes(report) {
+  const overages = Array.isArray(report.overages) ? report.overages : [];
+  const unused = Array.isArray(report.unused) ? report.unused : [];
+  const used_tokens = report.total_tokens - report.unused_tokens;
+  return {
+    [`${NS}.budget.total_tokens`]: report.total_tokens,
+    [`${NS}.budget.file_count`]: report.file_count,
+    [`${NS}.budget.used_tokens`]: used_tokens,
+    [`${NS}.budget.unused_tokens`]: report.unused_tokens,
+    [`${NS}.budget.utilization`]: report.utilization,
+    [`${NS}.budget.waste_ratio`]: report.waste_ratio,
+    [`${NS}.budget.over_budget`]: report.over_budget,
+    [`${NS}.budget.unused.count`]: unused.length,
+    [`${NS}.budget.unused.paths`]: unused.map((u) => u.path),
+    [`${NS}.budget.overages.caps`]: overages.map((o) => o.cap),
+  };
+}

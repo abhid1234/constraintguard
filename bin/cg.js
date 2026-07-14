@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // ConstraintGuard CLI. Subcommands are added issue-by-issue; today: `extract`,
-// `conformance`, `pin`, `otel`. Future subcommands (`validate`) slot in as
-// sibling cases in main(). Zero dependencies: Node standard library only.
+// `conformance`, `pin`, `otel`, `budget`. Future subcommands (`validate`) slot in
+// as sibling cases in main(). Zero dependencies: Node standard library only.
 
 import { readFileSync, readdirSync, statSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -10,8 +10,11 @@ import {
   extractConstraints,
   scoreConformance,
   pinConstraints,
+  budgetReport,
+  validateReadLog,
   constraintsToSpanAttributes,
   conformanceToSpanAttributes,
+  budgetToSpanAttributes,
   adaptHarness,
   HARNESSES,
 } from '../src/index.js';
@@ -21,8 +24,10 @@ const USAGE = [
   'usage: cg extract [--strict] [--harness text|claude-code|codex|cursor|antigravity] <context-file-or-project-dir>',
   '       cg conformance [--json] [--match id|exact] [--threshold <t>] [--strict] <original> <compacted>',
   '       cg pin <constraints-json|-> <context-file>',
+  '       cg budget [--json] [--max-tokens N] [--max-files N] [--max-tokens-per-file N] <read-log-json|->',
   '       cg otel constraints [--strict] <context-file>',
   '       cg otel conformance [--match id|exact] [--strict] <original> <compacted>',
+  '       cg otel budget [--max-tokens N] [--max-files N] [--max-tokens-per-file N] <read-log-json|->',
   '       cg hook pre-compact    # PreCompact: cache declared constraints (stdin: hook JSON)',
   '       cg hook session-start  # SessionStart(compact): re-inject cached constraints',
 ].join('\n');
@@ -36,6 +41,8 @@ function main(argv) {
       return cmdConformance(rest);
     case 'pin':
       return cmdPin(rest);
+    case 'budget':
+      return cmdBudget(rest);
     case 'otel':
       return cmdOtel(rest);
     case 'hook':
@@ -285,6 +292,79 @@ function cmdConformance(args) {
   if (threshold !== undefined && result.score < threshold) process.exit(2);
 }
 
+// `cg budget [caps] <read-log-json|->` — audit what an agent loaded into context
+// against an optional token/file budget, surfacing loaded-but-unused waste. Caps
+// come from flags (`--max-tokens`, `--max-files`, `--max-tokens-per-file`); the
+// read-log is a JSON array of `{ path, tokens, used? }` reads (or `-` for stdin).
+// Prints a human report (or `--json`) and, like `conformance --threshold`, turns
+// into a CI gate: exit 2 (distinct from the exit-1 error path) when over budget.
+function cmdBudget(args) {
+  let json = false;
+  const budget = {};
+  const files = [];
+
+  for (let i = 0; i < args.length; i++) {
+    const a = args[i];
+    if (a === '--json') json = true;
+    else if (a === '-h' || a === '--help') return void process.stdout.write(USAGE + '\n');
+    else if (a === '--max-tokens') budget.max_tokens = parseCap('budget', a, args[++i]);
+    else if (a === '--max-files') budget.max_files = parseCap('budget', a, args[++i]);
+    else if (a === '--max-tokens-per-file') budget.max_tokens_per_file = parseCap('budget', a, args[++i]);
+    else if (a.startsWith('-') && a !== '-') fail(`budget: unknown option ${JSON.stringify(a)}\n${USAGE}`);
+    else files.push(a);
+  }
+
+  if (files.length !== 1) {
+    fail(`budget: expected one <read-log-json|->, got ${files.length} argument(s)\n${USAGE}`);
+  }
+
+  const reads = readReadLog('budget', files[0]);
+  const hasCap = Object.keys(budget).length > 0;
+  const report = budgetReport(reads, hasCap ? budget : undefined);
+
+  if (json) {
+    process.stdout.write(JSON.stringify(report, null, 2) + '\n');
+  } else {
+    process.stdout.write(formatBudget(report) + '\n');
+  }
+
+  if (report.over_budget) process.exit(2);
+}
+
+// Parse a `--max-*` cap flag value into a finite non-negative number, failing
+// (exit 1) with a clear message otherwise. Shared by `budget` and `otel budget`.
+function parseCap(cmd, flag, raw) {
+  const n = Number(raw);
+  if (raw === undefined || !Number.isFinite(n) || n < 0) {
+    fail(`${cmd}: ${flag} requires a non-negative number, got ${JSON.stringify(raw)}\n${USAGE}`);
+  }
+  return n;
+}
+
+// Read + parse a read-log (JSON array of reads) from a file or `-` (stdin), then
+// validate its shape via `validateReadLog`. Fails (exit 1) with a clear message
+// on an unreadable source, invalid JSON, or a malformed read-log. Shared by
+// `budget` and `otel budget`.
+function readReadLog(cmd, source) {
+  let raw;
+  try {
+    raw = readFileSync(source === '-' ? 0 : source, 'utf8');
+  } catch (err) {
+    fail(`${cmd}: cannot read ${source === '-' ? 'stdin' : source}: ${err.message}`);
+  }
+
+  let reads;
+  try {
+    reads = JSON.parse(raw);
+  } catch (err) {
+    fail(`${cmd}: invalid JSON read-log: ${err.message}`);
+  }
+
+  const { valid, errors } = validateReadLog(reads);
+  if (!valid) fail(`${cmd}: ${errors[0]}`);
+  return reads;
+}
+
 // `cg otel <mode> …` — print ConstraintGuard data as OpenTelemetry span
 // attributes (JSON). Two modes mirror the two library mappers and reuse the
 // extract / conformance plumbing; `otel` is a pure printer, so it always exits
@@ -296,13 +376,15 @@ function cmdOtel(args) {
       return cmdOtelConstraints(rest);
     case 'conformance':
       return cmdOtelConformance(rest);
+    case 'budget':
+      return cmdOtelBudget(rest);
     case '-h':
     case '--help':
       return void process.stdout.write(USAGE + '\n');
     case undefined:
-      return fail(`otel: a mode is required (constraints | conformance)\n${USAGE}`);
+      return fail(`otel: a mode is required (constraints | conformance | budget)\n${USAGE}`);
     default:
-      return fail(`otel: unknown mode ${JSON.stringify(mode)} (expected constraints | conformance)\n${USAGE}`);
+      return fail(`otel: unknown mode ${JSON.stringify(mode)} (expected constraints | conformance | budget)\n${USAGE}`);
   }
 }
 
@@ -372,6 +454,31 @@ function cmdOtelConformance(args) {
   } catch (err) {
     fail(`otel: ${err.message}`);
   }
+  process.stdout.write(JSON.stringify(attrs, null, 2) + '\n');
+}
+
+// `cg otel budget [caps] <read-log-json|->` — print a budget report as
+// OpenTelemetry span attributes (JSON), reusing the `budget` plumbing. A pure
+// printer: always exits 0 on success (no over-budget exit-2 gate).
+function cmdOtelBudget(args) {
+  const budget = {};
+  const files = [];
+  for (let i = 0; i < args.length; i++) {
+    const a = args[i];
+    if (a === '-h' || a === '--help') return void process.stdout.write(USAGE + '\n');
+    else if (a === '--max-tokens') budget.max_tokens = parseCap('otel', a, args[++i]);
+    else if (a === '--max-files') budget.max_files = parseCap('otel', a, args[++i]);
+    else if (a === '--max-tokens-per-file') budget.max_tokens_per_file = parseCap('otel', a, args[++i]);
+    else if (a.startsWith('-') && a !== '-') fail(`otel: unknown option ${JSON.stringify(a)}\n${USAGE}`);
+    else files.push(a);
+  }
+  if (files.length !== 1) {
+    fail(`otel budget: expected one <read-log-json|->, got ${files.length} argument(s)\n${USAGE}`);
+  }
+
+  const reads = readReadLog('otel', files[0]);
+  const hasCap = Object.keys(budget).length > 0;
+  const attrs = budgetToSpanAttributes(budgetReport(reads, hasCap ? budget : undefined));
   process.stdout.write(JSON.stringify(attrs, null, 2) + '\n');
 }
 
@@ -462,6 +569,24 @@ function formatConformance(result) {
 
   const lines = [head, `Dropped (${dropped.length}):`];
   for (const c of dropped) lines.push(`  - ${c.severity} [${c.id}]: ${c.text}`);
+  return lines.join('\n');
+}
+
+// Human-readable budget report.
+function formatBudget(report) {
+  const { total_tokens, file_count, waste_ratio, unused, unused_tokens, over_budget, overages } = report;
+  const pct = (waste_ratio * 100).toFixed(1);
+  const lines = [
+    `Budget: ${total_tokens} tokens across ${file_count} file(s); ${unused_tokens} wasted (${pct}%)${over_budget ? ' — OVER BUDGET' : ''}`,
+  ];
+  if (overages.length > 0) {
+    lines.push(`Over (${overages.length}):`);
+    for (const o of overages) lines.push(`  - ${o.cap}: ${o.actual} > ${o.limit}`);
+  }
+  if (unused.length > 0) {
+    lines.push(`Unused (${unused.length}):`);
+    for (const u of unused) lines.push(`  - ${u.path} (${u.tokens} tokens)`);
+  }
   return lines.join('\n');
 }
 

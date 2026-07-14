@@ -20,9 +20,16 @@ composable operations over it.
 - `conformance` — a ConstraintRot-style score of how well constraints survive.
 - Cross-harness adapters (Claude Code, Codex) reading each harness's context.
 - An OpenTelemetry mapping (constraint event → span attribute).
+- **Context budget (`budget`) — shipped.** The second half of context integrity:
+  an open budget + read-log format and a `budgetReport` that surfaces
+  loaded-but-unused context (waste_ratio) and any blown token/file cap, with a
+  `cg budget` CI gate and an OTel mapping. Keep the rules alive *and* the context
+  lean — same mandate, no runtime dependency.
 
 ## Out of scope (for now)
 - A hosted service, dashboard, or account system.
 - Provider- or framework-specific SDK lock-in.
-- General context management beyond constraints (summarization quality, RAG).
+- General context management beyond integrity (summarization quality, RAG,
+  retrieval ranking). Auditing a caller-supplied read-log against a budget is in
+  scope; tokenizing or deciding *what* to load is not.
 - Any runtime dependency.

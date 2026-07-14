@@ -27,12 +27,54 @@ cg extract --harness codex rollout.jsonl        # …or from an OpenAI Codex CLI
 cg extract --harness antigravity AGENTS.md      # …or a Google Antigravity rules file
 cg pin constraints.json ctx.md # re-inject constraints into a (compacted) context
 cg conformance orig.md new.md  # score how well constraints survive compaction
+cg budget reads.json --max-tokens 8000  # audit what was loaded vs. what was needed
 cg otel constraints ctx.md     # map constraints to OpenTelemetry span attributes
 ```
 
 The `otel` command emits a flat attribute object under the stable `constraintguard.*`
 namespace (no OpenTelemetry SDK) — attach it to any span so "which constraints were
 declared / dropped" shows up in your agent's trace.
+
+## Context budget — keep the context lean
+
+ConstraintGuard owns **context integrity**, and integrity has two halves: keep the
+*rules* alive across compaction (above), and keep the *context* itself lean. An
+agent that loads a whole repo into context to answer one question is burning tokens
+on ballast — the "99% fewer tokens" waste everyone is chasing. `cg budget` audits
+it: given a **read-log** of what the agent loaded, it reports what was actually used
+vs. dropped-in-and-never-touched, and whether any budget cap was blown.
+
+Two plain, open JSON shapes mirror the constraint set — no service, no tokenizer:
+
+```jsonc
+// budget (all caps optional)
+{ "max_tokens": 8000, "max_files": 20, "max_tokens_per_file": 2000 }
+
+// read-log — one entry per thing the agent loaded.
+// `tokens` is the caller's own count; `used` marks whether it was actually needed.
+[
+  { "path": "src/auth.js",  "tokens": 400, "used": true  },
+  { "path": "vendor/big.js", "tokens": 6000, "used": false },
+  { "path": "README.md",     "tokens": 200 }
+]
+```
+
+```bash
+cg budget reads.json --max-tokens 8000 --max-files 20   # human report; exit 2 if over budget
+cg budget reads.json --json                             # machine-readable report
+cat reads.json | cg budget -                            # read-log from stdin
+cg otel budget reads.json --max-tokens 8000             # …as OpenTelemetry span attributes
+```
+
+`budgetReport(reads, budget?)` returns `{ total_tokens, file_count, over_budget,
+overages, unused, unused_tokens, utilization, waste_ratio }`. The heart of it is
+`unused` / `waste_ratio` — the loaded-but-never-used context you can cut — and
+`overages`, one entry per blown cap so `cg budget` can gate CI (it exits `2` when
+over budget, just like `cg conformance --threshold`). ConstraintGuard does not
+tokenize: token counts come from the caller (a real model count is best; the
+documented `estimateTokens(text)` ≈ chars/4 heuristic is a fallback, not a
+tokenizer). A read is only ever counted as waste when it is explicitly
+`used: false`, so the audit never over-accuses.
 
 ## Dogfood: auto-pin across Claude Code compaction
 
