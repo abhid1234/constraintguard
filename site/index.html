@@ -152,6 +152,30 @@
   .rowline.d { color:var(--muted); }
   .note-inline { font-size:13px; color:var(--muted); margin-top:14px; padding:11px 13px; background:var(--panel-2); border:1px solid var(--line); border-left:3px solid var(--brand); border-radius:8px; }
 
+  /* budget / read-log */
+  .bg-rows { display:flex; flex-direction:column; gap:6px; margin-bottom:10px; }
+  .bg-row { display:grid; grid-template-columns:1fr 74px auto 28px; gap:8px; align-items:center; }
+  .bg-row input.path, .bg-row input.tok { background:var(--panel-2); color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:7px 9px; font-family:var(--mono); font-size:12px; width:100%; }
+  .bg-row input.tok { text-align:right; }
+  .bg-row input:focus { outline:none; border-color:var(--brand); box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 18%,transparent); }
+  .bg-row .usedtog { display:inline-flex; align-items:center; gap:5px; font-family:var(--mono); font-size:11px; color:var(--muted); cursor:pointer; margin:0; text-transform:none; letter-spacing:0; font-weight:500; }
+  .bg-row .usedtog input { accent-color:var(--brand); }
+  .bg-row .del { background:none; border:1px solid var(--line); color:var(--faint); border-radius:6px; width:28px; height:30px; cursor:pointer; font-size:12px; }
+  .bg-row .del:hover { color:var(--drop); border-color:var(--drop); }
+  .bg-caps { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+  .bg-caps label { display:flex; flex-direction:column; gap:5px; margin:0; font-family:var(--mono); font-size:10px; color:var(--faint); text-transform:none; letter-spacing:0; font-weight:500; justify-content:flex-start; }
+  .bg-caps input { background:var(--panel-2); color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:7px 9px; font-family:var(--mono); font-size:12px; }
+  .bg-caps input:focus { outline:none; border-color:var(--brand); }
+  @media (max-width:560px){ .bg-caps { grid-template-columns:1fr; } }
+  .bg-verdict { font-family:var(--mono); font-weight:800; font-size:14px; letter-spacing:.05em; padding:9px 12px; border-radius:8px; margin-bottom:14px; text-align:center; }
+  .bg-verdict.bad { color:var(--drop); background:color-mix(in srgb,var(--drop) 12%,transparent); border:1px solid color-mix(in srgb,var(--drop) 42%,var(--line)); }
+  .bg-verdict.good { color:var(--survive); background:color-mix(in srgb,var(--survive) 12%,transparent); border:1px solid color-mix(in srgb,var(--survive) 42%,var(--line)); }
+  .bg-stats { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
+  .bg-stats > div { display:flex; justify-content:space-between; align-items:baseline; background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:8px 11px; font-family:var(--mono); font-size:12.5px; }
+  .bg-stats .k { color:var(--faint); } .bg-stats .v { font-weight:800; font-variant-numeric:tabular-nums; }
+  .bg-caption { font-size:12.5px; color:var(--muted); margin:12px 0; padding:9px 11px; background:var(--panel); border-left:3px solid var(--brand); border-radius:6px; line-height:1.5; }
+  .bg-list h5 { margin:14px 0 6px; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--drop); }
+
   /* benchmark table */
   table.bench { width:100%; border-collapse:collapse; font-size:13.5px; margin-top:4px; }
   table.bench th,table.bench td { text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); }
@@ -399,6 +423,7 @@
         <button class="tab" role="tab" aria-selected="false" data-tab="pin"><span class="num">03</span>Pin &amp; fix</button>
         <button class="tab" role="tab" aria-selected="false" data-tab="bench"><span class="num">04</span>Benchmark</button>
         <button class="tab" role="tab" aria-selected="false" data-tab="otel"><span class="num">05</span>OTel bridge</button>
+        <button class="tab" role="tab" aria-selected="false" data-tab="budget"><span class="num">06</span>Budget</button>
       </div>
 
       <!-- 01 EXTRACT -->
@@ -475,6 +500,28 @@
         <div class="io">
           <div class="field"><label>Constraint set <span class="hint">from the scenario</span></label><textarea id="otel-in" spellcheck="false"></textarea></div>
           <div class="field"><label>constraintsToSpanAttributes(set) <a class="mini" id="otel-copy">copy JSON</a></label><div class="out" id="otel-out"></div></div>
+        </div>
+      </div>
+
+      <!-- 06 BUDGET -->
+      <div class="panel" id="p-budget" role="tabpanel">
+        <p class="desc">Context integrity has two halves — <b>keep the rules</b> (the other tabs) <b>AND keep the context lean</b> (this). <code>budgetReport</code> audits what the agent actually <em>loaded</em> against optional caps: it surfaces loaded-but-never-used context you can cut — the "99% fewer tokens" waste — and flags every blown budget. Edit the read-log or caps; the real <code>budgetReport(reads, budget)</code> re-runs live.</p>
+        <div class="io">
+          <div class="field">
+            <label>Read-log <span class="hint">path · tokens · used ✓/✗</span></label>
+            <div class="bg-rows" id="bg-rows"></div>
+            <button class="btn ghost" id="bg-add" style="padding:7px 13px; font-size:13px;">+ add read</button>
+            <label style="margin-top:18px;">Budget caps <span class="hint">blank = no cap</span></label>
+            <div class="bg-caps">
+              <label>max_tokens<input type="number" min="0" id="bg-max-tokens" value="20000"></label>
+              <label>max_files<input type="number" min="0" id="bg-max-files" value="8"></label>
+              <label>max_tokens_per_file<input type="number" min="0" id="bg-max-per-file" value="10000"></label>
+            </div>
+          </div>
+          <div class="field">
+            <label>budgetReport(reads, budget) <span class="hint">live</span></label>
+            <div class="out" id="bg-out"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -558,6 +605,7 @@ import { extractConstraints } from './lib/extract.js';
 import { scoreConformance } from './lib/conformance.js';
 import { pinConstraints } from './lib/pin.js';
 import { constraintsToSpanAttributes } from './lib/otel.js';
+import { budgetReport } from './lib/budget.js';
 
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
@@ -692,6 +740,72 @@ function renderOtel(){
 $('#otel-in').addEventListener('input', renderOtel);
 $('#otel-copy').addEventListener('click', async ()=>{ try { await navigator.clipboard.writeText(JSON.stringify(constraintsToSpanAttributes(extractConstraints($('#otel-in').value)),null,2)); $('#otel-copy').textContent='copied ✓'; setTimeout(()=>$('#otel-copy').textContent='copy JSON',1400);}catch{} });
 
+/* ---------- 06 budget (real budgetReport, client-side) ---------- */
+// A believable scenario: a big vendor bundle got loaded into context but never
+// touched — the loaded-but-unused waste everyone is chasing ("99% fewer tokens").
+let bgReads = [
+  { path:'src/handlers/charge-capture.js', tokens:1240, used:true },
+  { path:'src/lib/retry.js', tokens:680, used:true },
+  { path:'node_modules/@acme/vendor-sdk/dist/bundle.js', tokens:48200, used:false },
+  { path:'README.md', tokens:420, used:true },
+  { path:'config/app.json', tokens:190, used:true },
+];
+const bgPct = (x) => (x*100).toFixed(1) + '%';
+function bgBudget(){
+  const b = {};
+  const mt = $('#bg-max-tokens').value, mf = $('#bg-max-files').value, mp = $('#bg-max-per-file').value;
+  if (mt.trim() !== '') b.max_tokens = Number(mt);
+  if (mf.trim() !== '') b.max_files = Number(mf);
+  if (mp.trim() !== '') b.max_tokens_per_file = Number(mp);
+  return b;
+}
+function renderBudgetRows(){
+  $('#bg-rows').innerHTML = bgReads.map((r,i)=>`
+    <div class="bg-row" data-i="${i}">
+      <input class="path" type="text" data-i="${i}" data-k="path" value="${esc(r.path)}" spellcheck="false" aria-label="path">
+      <input class="tok" type="number" min="0" data-i="${i}" data-k="tokens" value="${r.tokens}" aria-label="tokens">
+      <label class="usedtog"><input type="checkbox" data-i="${i}" data-k="used" ${r.used?'checked':''}> used</label>
+      <button class="del" data-i="${i}" title="remove read" aria-label="remove read">✕</button>
+    </div>`).join('');
+}
+function renderBudget(){
+  const budget = bgBudget();
+  const rep = budgetReport(bgReads, budget);
+  const overs = rep.overages.length
+    ? rep.overages.map(o=>`<div class="rowline d"><span class="sev must">blown</span> <b>${esc(o.cap)}</b> — limit ${o.limit.toLocaleString()}, actual <b style="color:var(--drop)">${o.actual.toLocaleString()}</b></div>`).join('')
+    : '<div class="rowline d">— every cap respected</div>';
+  const unused = rep.unused.length
+    ? rep.unused.map(u=>`<div class="rowline d"><span style="color:var(--drop)">✗</span> ${esc(u.path)} <span style="color:var(--drop); margin-left:auto">${u.tokens.toLocaleString()} tok</span></div>`).join('')
+    : '<div class="rowline d">— no loaded-but-unused context 🎉</div>';
+  $('#bg-out').innerHTML =
+    `<div class="bg-verdict ${rep.over_budget?'bad':'good'}">${rep.over_budget?'✕ OVER BUDGET':'✓ WITHIN BUDGET'}</div>`
+    + `<div class="bg-stats">`
+    + `<div><span class="k">total_tokens</span><span class="v">${rep.total_tokens.toLocaleString()}</span></div>`
+    + `<div><span class="k">file_count</span><span class="v">${rep.file_count}</span></div>`
+    + `<div><span class="k">utilization</span><span class="v" style="color:var(--survive)">${bgPct(rep.utilization)}</span></div>`
+    + `<div><span class="k">waste_ratio</span><span class="v" style="color:var(--drop)">${bgPct(rep.waste_ratio)}</span></div>`
+    + `</div>`
+    + `<div class="bar"><i style="width:${Math.round(rep.utilization*100)}%"></i></div>`
+    + `<div class="bg-caption">Context integrity has two halves — <b>keep the rules</b> (the other tabs) <b>AND keep the context lean</b> (this). <b style="color:var(--drop)">${bgPct(rep.waste_ratio)}</b> of the loaded context was never used.</div>`
+    + `<div class="bg-list"><h5>Unused — loaded but never touched (cut this)</h5>${unused}</div>`
+    + `<div class="bg-list"><h5>Overages — blown budget caps</h5>${overs}</div>`;
+}
+$('#bg-rows').addEventListener('input', (e)=>{
+  const t = e.target, i = +t.dataset.i, k = t.dataset.k;
+  if (i>=0 && bgReads[i]){
+    if (k==='path') bgReads[i].path = t.value;
+    else if (k==='tokens') bgReads[i].tokens = t.value.trim()==='' ? 0 : Number(t.value);
+    else if (k==='used') bgReads[i].used = t.checked;
+    renderBudget();
+  }
+});
+$('#bg-rows').addEventListener('click', (e)=>{
+  const del = e.target.closest('.del'); if(!del) return;
+  bgReads.splice(+del.dataset.i, 1); renderBudgetRows(); renderBudget();
+});
+$('#bg-add').addEventListener('click', ()=>{ bgReads.push({ path:'src/new-file.js', tokens:500, used:true }); renderBudgetRows(); renderBudget(); });
+['#bg-max-tokens','#bg-max-files','#bg-max-per-file'].forEach(s => $(s).addEventListener('input', renderBudget));
+
 /* ---------- source viewer (fetch the real files) ---------- */
 for (const f of ['extract','conformance','pin','schema']) {
   fetch('./lib/'+f+'.js').then(r=>r.text()).then(t=>{ const el=$('#src-'+f); if(el) el.textContent = t; }).catch(()=>{ const el=$('#src-'+f); if(el) el.textContent='(source unavailable)'; });
@@ -765,6 +879,7 @@ if (escal) {
 
 /* init */
 loadScenario();
+renderBudgetRows(); renderBudget();
 </script>
 </body>
 </html>
